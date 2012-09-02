@@ -5,7 +5,7 @@ public class DudeWeaponController : MonoBehaviour {
 
     public GameObject bullet;
 
-    private float fireDelay = .5f;
+    private float fireDelay = .1f;
     private float lastFire = -1;
 
     private GameObject target;
@@ -43,12 +43,13 @@ public class DudeWeaponController : MonoBehaviour {
             RaycastHit hit;
             if(Physics.Raycast(rayStart, point - transform.position, out hit))
             {
-                Debug.Log("From " + rayStart + " along " + (point - transform.position)
-                    + ", hit " + hit.collider.gameObject + " at " + hit.point);
                 if (target != null)
                     target.transform.position = hit.point;
+                Quaternion bulletRot = Quaternion.LookRotation(hit.point - transform.position);
+                Bullet newBullet = ((GameObject)Instantiate(bullet, transform.position, bulletRot)).GetComponent<Bullet>();
+                newBullet.target = hit.collider.gameObject;
+                newBullet.hitInfo = hit;
             }
-            Debug.Log("PEW PEW!");
         }
 	}
 

@@ -3,15 +3,27 @@ using System.Collections;
 
 public class Bullet : MonoBehaviour {
 
-    private float speed = 10f;
+    public float distance = 0;
+    public GameObject target;
+    public RaycastHit hitInfo;
+    private float speed = 150f;
 
 	// Use this for initialization
 	void Start () {
-	
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        Vector3 movement = transform.forward * Time.deltaTime * speed;
+        if (distance + Vector3.Magnitude(movement) > hitInfo.distance)
+        {
+            hitInfo.collider.gameObject.SendMessage("BulletHit", gameObject, SendMessageOptions.RequireReceiver);
+            Destroy(gameObject);
+        }
+        else
+        {
+            transform.position += movement;
+            distance += Vector3.Magnitude(movement);
+        }
 	}
 }
