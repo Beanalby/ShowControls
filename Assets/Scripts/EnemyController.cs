@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Wall : MonoBehaviour {
+public class EnemyController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -13,8 +13,9 @@ public class Wall : MonoBehaviour {
 	
 	}
 
-    public void BulletHit(Bullet bullet)
+    public void Die()
     {
-        Debug.Log("OW! - " + gameObject.name);
+        // TODO something cool.
+        Destroy(gameObject);
     }
 }

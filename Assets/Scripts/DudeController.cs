@@ -65,7 +65,7 @@ public class DudeController : MonoBehaviour {
 
     void ApplyChanges()
     {
-        CollisionFlags cf = cc.Move(move.movement);
+        cc.Move(move.movement);
         if (Vector3.Magnitude(move.lookDir) != 0)
         {
             Quaternion targetRot = Quaternion.LookRotation(move.lookDir);

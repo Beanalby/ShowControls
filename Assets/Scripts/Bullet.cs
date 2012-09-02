@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Bullet : MonoBehaviour {
 
+    public int damage = 10;
     public float distance = 0;
     public GameObject target;
     public RaycastHit hitInfo;
@@ -17,7 +18,8 @@ public class Bullet : MonoBehaviour {
         Vector3 movement = transform.forward * Time.deltaTime * speed;
         if (distance + Vector3.Magnitude(movement) > hitInfo.distance)
         {
-            hitInfo.collider.gameObject.SendMessage("BulletHit", gameObject, SendMessageOptions.RequireReceiver);
+            Debug.Log("Sending BulletHit to " + hitInfo.collider.gameObject);
+            hitInfo.collider.gameObject.SendMessage("BulletHit", this, SendMessageOptions.RequireReceiver);
             Destroy(gameObject);
         }
         else
