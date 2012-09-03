@@ -3,6 +3,7 @@ using System.Collections;
 
 public class DudeWeaponController : MonoBehaviour {
 
+    public static Vector3 AIM_NONE = new Vector3(-1000, -1000, -1000);
     public GameObject bullet;
 
     private float fireDelay = .1f;
@@ -27,31 +28,51 @@ public class DudeWeaponController : MonoBehaviour {
             return;
         }
         isFiring = true;
-        // figure out where the mouse is pointing
-        Plane plane = new Plane(Vector3.up, transform.position);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        float hitdist = 0.0f;
-        if (plane.Raycast(ray, out hitdist))
+        /* figure out where the mouse is pointing.  If it's actually over
+         * a shootable thing, aim at that.  Don't assume it's what we're
+         * hitting just yet, there may be something else in the way. */
+        Ray cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        Vector3 aimPoint = AIM_NONE;
+        if (Physics.Raycast(cameraRay, out hit, Mathf.Infinity, rayMask))
+            if (hit.collider.gameObject.GetComponent<ShootableThing>() != null)
+                aimPoint = hit.collider.transform.position;
+        if(aimPoint==AIM_NONE)
         {
-            Vector3 point = ray.GetPoint(hitdist);
-            firingDir = point - transform.position;
-            if (lastFire + fireDelay > Time.time)
-                return;
-
-            lastFire = Time.time;
-            // GameObject newBullet = (GameObject)Instantiate(bullet, transform.position, transform.rotation);
-            // figure out what the bullet hits now
-            Vector3 rayStart = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-            RaycastHit hit;
-            if(Physics.Raycast(rayStart, point - transform.position, out hit, Mathf.Infinity, rayMask))
+            /* Aim at the position where the cursor intersects
+             * the player's flat plane. */
+            Plane plane = new Plane(Vector3.up, transform.position);
+            float hitdist = 0.0f;
+            if (plane.Raycast(cameraRay, out hitdist))
             {
-                if (target != null)
-                    target.transform.position = hit.point;
-                Quaternion bulletRot = Quaternion.LookRotation(hit.point - transform.position);
-                Bullet newBullet = ((GameObject)Instantiate(bullet, transform.position, bulletRot)).GetComponent<Bullet>();
-                newBullet.target = hit.collider.gameObject;
-                newBullet.hitInfo = hit;
+                aimPoint = cameraRay.GetPoint(hitdist);
             }
+        }
+        if(aimPoint==AIM_NONE)
+        {
+            // should never happen!
+            Debug.LogError("zero aimpoint past plane intersection");
+            return;
+        }
+        firingDir = aimPoint - transform.position;
+        /* we needed to calculate firingDir so we keep turning even if we're
+         * not actually launching another bullet just yet.  NOW we can bail
+         * if the firing isn't going to happen. */
+        if (lastFire + fireDelay > Time.time)
+            return;
+
+        // figure out what the bullet hits now, instead of doing collision
+        // detection
+        lastFire = Time.time;
+        Vector3 rayStart = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        if(Physics.Raycast(rayStart, aimPoint - transform.position, out hit, Mathf.Infinity, rayMask))
+        {
+            if (target != null)
+                target.transform.position = hit.point;
+            Quaternion bulletRot = Quaternion.LookRotation(hit.point - transform.position);
+            Bullet newBullet = ((GameObject)Instantiate(bullet, transform.position, bulletRot)).GetComponent<Bullet>();
+            newBullet.target = hit.collider.gameObject;
+            newBullet.hitInfo = hit;
         }
 	}
 
