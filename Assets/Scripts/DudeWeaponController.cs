@@ -13,6 +13,8 @@ public class DudeWeaponController : MonoBehaviour {
     private bool isFiring = false;
     private Vector3 firingDir = Vector3.zero;
 
+    // when shooting, don't collide with the player.
+    static private int rayMask = ~(1 << 8);
 	void Start () {
         target = GameObject.Find("Target");
     }
@@ -41,7 +43,7 @@ public class DudeWeaponController : MonoBehaviour {
             // figure out what the bullet hits now
             Vector3 rayStart = new Vector3(transform.position.x, transform.position.y, transform.position.z);
             RaycastHit hit;
-            if(Physics.Raycast(rayStart, point - transform.position, out hit))
+            if(Physics.Raycast(rayStart, point - transform.position, out hit, Mathf.Infinity, rayMask))
             {
                 if (target != null)
                     target.transform.position = hit.point;

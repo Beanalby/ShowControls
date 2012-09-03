@@ -23,17 +23,24 @@ class DudeMovement
 [RequireComponent (typeof(DudeWeaponController))]
 public class DudeController : MonoBehaviour {
 
+    public int MaxHealth = 100;
+
     private float moveSpeed = 10;
     private float turnSpeed = 10;
+
+    private float gotHitLast = -100;
+    private float gotHitCooldown = 1;
 
     private DudeMovement move;
     private CharacterController cc;
     private DudeWeaponController dwc;
 
+    private int currentHealth;
 	void Start () {
         move = new DudeMovement();
         cc = GetComponent<CharacterController>();
         dwc = GetComponent<DudeWeaponController>();
+        currentHealth = MaxHealth;
 	}
 	
 	// Update is called once per frame
@@ -74,6 +81,35 @@ public class DudeController : MonoBehaviour {
             else
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
         }
+    }
 
+    public void GotHit(int damage)
+    {
+        // if they just got hit, skip it
+        if (gotHitLast + gotHitCooldown > Time.time)
+            return;
+
+        currentHealth -= damage;
+        gotHitLast = Time.time;
+        if (currentHealth <= 0)
+            Die();
+        else
+        {
+            Debug.Log("OW, player's down to " + currentHealth);
+            // TODO player got hit
+        }
+    }
+
+    public void Die()
+    {
+        Debug.Log("BLARG, I ARE DEAD!");
+        Destroy(gameObject);
+    }
+
+    public void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // let them know we run in to them.  They might
+        // care (enemy) or they might not (wall).
+        hit.gameObject.SendMessage("PlayerHit", gameObject, SendMessageOptions.DontRequireReceiver);
     }
 }
