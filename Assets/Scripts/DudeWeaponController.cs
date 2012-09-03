@@ -67,6 +67,9 @@ public class DudeWeaponController : MonoBehaviour {
         Vector3 rayStart = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         if(Physics.Raycast(rayStart, aimPoint - transform.position, out hit, Mathf.Infinity, rayMask))
         {
+            Debug.Log("Ray along (" + (aimPoint - transform.position) + ") hit " + hit.collider.gameObject);
+            //if (hit.collider.gameObject.name == "Floor")
+            //    Debug.Break();
             if (target != null)
                 target.transform.position = hit.point;
             Quaternion bulletRot = Quaternion.LookRotation(hit.point - transform.position);

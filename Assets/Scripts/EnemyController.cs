@@ -1,20 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
+[RequireComponent (typeof(RigidbodyController))]
 public class EnemyController : MonoBehaviour {
 
     public int damage;
-    private float turnSpeed = 5f;
-    private float moveSpeed = 3f;
-
     private bool isActive = true;
     DudeController dude;
-	// Use this for initialization
+
+    private RigidbodyController rc;
+
 	void Start () {
         dude = GameObject.Find("Dude").GetComponent<DudeController>();
+        rc = GetComponent<RigidbodyController>();
 	}
 	
-	// Update is called once per frame
 	void FixedUpdate () {
         ChaseDude();    
 	}
@@ -23,18 +23,12 @@ public class EnemyController : MonoBehaviour {
     {
         if (!isActive || dude == null)
             return;
-
-        Vector3 moveAmount = Vector3.zero;
         
         // look at the dude (but not up or down)
         Vector3 dudeDir = dude.transform.position - transform.position;
         dudeDir.y = 0;
-
-        Quaternion targetRot = Quaternion.LookRotation(dudeDir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
-
-        moveAmount += (transform.forward * moveSpeed * Time.deltaTime);
-        transform.position += moveAmount;
+        rc.TurnTowards(dudeDir);
+        rc.Move(transform.forward);
     }
 
     public void Die()

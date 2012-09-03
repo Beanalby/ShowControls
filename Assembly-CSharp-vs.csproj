@@ -50,7 +50,9 @@
      <Compile Include="Assets\Scripts\DudeWeaponController.cs" />
      <Compile Include="Assets\Scripts\EnemyController.cs" />
      <Compile Include="Assets\Scripts\EnemySpawner.cs" />
+     <Compile Include="Assets\Scripts\Floor.cs" />
      <Compile Include="Assets\Scripts\HealthBar.cs" />
+     <Compile Include="Assets\Scripts\RigidbodyController.cs" />
      <Compile Include="Assets\Scripts\ShootableThing.cs" />
      <Compile Include="Assets\Scripts\Wall.cs" />
   </ItemGroup>
