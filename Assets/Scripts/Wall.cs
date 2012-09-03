@@ -15,6 +15,6 @@ public class Wall : MonoBehaviour {
 
     public void BulletHit(Bullet bullet)
     {
-        Debug.Log("OW! - " + gameObject.name);
+        // TODO play a sound or make a dent or something.
     }
 }
