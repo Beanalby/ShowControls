@@ -4,7 +4,8 @@ using System.Collections;
 class DudeMovement
 {
     public Vector3 lookDir;
-    public Vector3 movement;
+    public Vector3 newMovement;
+    public Vector3 velocity;
     public bool turnNow;
     
     public DudeMovement() {
@@ -14,7 +15,7 @@ class DudeMovement
     public void Reset()
     {
         lookDir = Vector3.zero;
-        movement = Vector3.zero;
+        newMovement = Vector3.zero;
         turnNow = false;
     }
 }
@@ -25,7 +26,10 @@ public class DudeController : MonoBehaviour {
 
     public int MaxHealth = 100;
 
-    private float moveSpeed = 10;
+    private float maxMoveSpeed = 10;
+    private float accelerationGround = 50;
+    private float accelerationAir = 1;
+    private float drag = 15f;
     private float turnSpeed = 10;
 
     private float gotHitLast = -100;
@@ -35,6 +39,8 @@ public class DudeController : MonoBehaviour {
     private CharacterController cc;
     private DudeWeaponController dwc;
 
+    private float gravity = 10;
+
     private int currentHealth;
 	void Start () {
         move = new DudeMovement();
@@ -42,18 +48,51 @@ public class DudeController : MonoBehaviour {
         dwc = GetComponent<DudeWeaponController>();
         currentHealth = MaxHealth;
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    void Update()
+    {
+        HandleFire();
+    }
+
+    void FixedUpdate ()
+    {
         move.Reset();
         HandleMovement();
-        HandleFire();
         ApplyChanges();
 	}
 
     void HandleMovement()
     {
         Vector3 newDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        // move.newMovement = newDir * moveSpeed * Time.deltaTime;
+
+        // adjust our velocity based on how we now want to move
+        if (cc.isGrounded)
+        {
+            Vector3 change = newDir * accelerationGround * Time.deltaTime;
+            //if (Vector3.Magnitude(change) != 0)
+            //    Debug.Log("Changing " + move.velocity + " by " + change);
+            move.velocity += change;
+        }
+        else
+        {
+            Vector3 change = newDir * accelerationAir * Time.deltaTime;
+            //if (Vector3.Magnitude(change) != 0)
+            //    Debug.Log("Air Changing " + move.velocity + " by " + change);
+            move.velocity += change;
+            move.velocity.y -= gravity * Time.deltaTime;
+        }
+        // if they didn't input a direction, apply some drag
+        if(newDir.x== 0)
+            move.velocity.x *= 1 - drag * Time.deltaTime;
+        if(newDir.z==0)
+            move.velocity.z *= 1 - drag * Time.deltaTime;
+
+        // cap more movement speed based on the max
+        move.velocity.x = Mathf.Min(maxMoveSpeed, Mathf.Max(-maxMoveSpeed, move.velocity.x));
+        move.velocity.z = Mathf.Min(maxMoveSpeed, Mathf.Max(-maxMoveSpeed, move.velocity.z));
+
+        // adjust our turn position
         if (dwc.IsFiring)
         {
             move.lookDir = dwc.FiringDir;
@@ -61,7 +100,6 @@ public class DudeController : MonoBehaviour {
         }
         else
             move.lookDir = newDir;
-        move.movement = newDir * moveSpeed * Time.deltaTime;
     }
 
     void HandleFire()
@@ -72,7 +110,7 @@ public class DudeController : MonoBehaviour {
 
     void ApplyChanges()
     {
-        cc.Move(move.movement);
+        cc.Move(move.velocity * Time.deltaTime);
         if (Vector3.Magnitude(move.lookDir) != 0)
         {
             Quaternion targetRot = Quaternion.LookRotation(move.lookDir);
@@ -108,6 +146,12 @@ public class DudeController : MonoBehaviour {
 
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if (hit.gameObject.name == "Floor")
+            return;
+        if (cc.isGrounded)
+            move.velocity.y = 0;
+
+        Debug.Log(name + " collided with" + hit.gameObject);
         // let them know we run in to them.  They might
         // care (enemy) or they might not (wall).
         hit.gameObject.SendMessage("PlayerHit", gameObject, SendMessageOptions.DontRequireReceiver);

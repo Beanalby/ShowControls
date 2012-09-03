@@ -16,7 +16,6 @@ public class ShootableThing : MonoBehaviour {
     private GameObject healthbar;
 
 	void Start () {
-        Debug.Log("ShootableThing starting, prefab=" + healthbarPrefab);
         healthbar = (GameObject)Instantiate(healthbarPrefab, transform.position, transform.rotation);
         healthbar.GetComponent<HealthBar>().SetThing(this);
         currentHealth = MaxHealth;

@@ -18,7 +18,6 @@ public class HealthBar : MonoBehaviour {
 
     public void SetThing(ShootableThing newthing)
     {
-        Debug.Log("Setting thing, healthTexture=" + healthTexture);
         thing = newthing;
 
         vertOffset = thing.healthbarOffset;
