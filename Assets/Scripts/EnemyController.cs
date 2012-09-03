@@ -4,8 +4,8 @@ using System.Collections;
 public class EnemyController : MonoBehaviour {
 
     public int damage;
-    public float turnSpeed = 5f;
-    public float moveSpeed = 1f;
+    private float turnSpeed = 5f;
+    private float moveSpeed = 3f;
 
     private bool isActive = true;
     DudeController dude;
@@ -21,22 +21,20 @@ public class EnemyController : MonoBehaviour {
 
     void ChaseDude()
     {
+        if (!isActive || dude == null)
+            return;
+
         Vector3 moveAmount = Vector3.zero;
+        
         // look at the dude (but not up or down)
         Vector3 dudeDir = dude.transform.position - transform.position;
         dudeDir.y = 0;
+
         Quaternion targetRot = Quaternion.LookRotation(dudeDir);
-
-        if (isActive)
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
-            moveAmount += (transform.forward * moveSpeed * Time.deltaTime);
 
-        // kill a move that would put us outside our playpen
-        // moveAmount.y = originalY - transform.position.y;
-            moveAmount.y = 0;
-        if (isActive)
-            transform.position += moveAmount;
-
+        moveAmount += (transform.forward * moveSpeed * Time.deltaTime);
+        transform.position += moveAmount;
     }
 
     public void Die()
