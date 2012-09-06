@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\RigidbodyController.cs" />
      <Compile Include="Assets\Scripts\ShootableThing.cs" />
      <Compile Include="Assets\Scripts\Wall.cs" />
+     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

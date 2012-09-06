@@ -37,9 +37,9 @@ public class EnemyController : MonoBehaviour {
         Destroy(gameObject);
     }
 
-    public void PlayerHit(GameObject player)
+    public void PlayerHit(Collision col)
     {
         // player bumped into us, HURT 'EM!
-        player.SendMessage("GotHit", damage);
+        dude.SendMessage("GotHit", damage);
     }
 }

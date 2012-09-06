@@ -28,6 +28,7 @@ public class DudeWeaponController : MonoBehaviour {
             return;
         }
         isFiring = true;
+
         /* figure out where the mouse is pointing.  If it's actually over
          * a shootable thing, aim at that.  Don't assume it's what we're
          * hitting just yet, there may be something else in the way. */
@@ -51,7 +52,6 @@ public class DudeWeaponController : MonoBehaviour {
         if(aimPoint==AIM_NONE)
         {
             // should never happen!
-            Debug.LogError("zero aimpoint past plane intersection");
             return;
         }
         firingDir = aimPoint - transform.position;
@@ -64,10 +64,8 @@ public class DudeWeaponController : MonoBehaviour {
         // figure out what the bullet hits now, instead of doing collision
         // detection
         lastFire = Time.time;
-        Vector3 rayStart = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        if(Physics.Raycast(rayStart, aimPoint - transform.position, out hit, Mathf.Infinity, rayMask))
+        if (Physics.Raycast(transform.position, aimPoint - transform.position, out hit, Mathf.Infinity, rayMask))
         {
-            Debug.Log("Ray along (" + (aimPoint - transform.position) + ") hit " + hit.collider.gameObject);
             //if (hit.collider.gameObject.name == "Floor")
             //    Debug.Break();
             if (target != null)

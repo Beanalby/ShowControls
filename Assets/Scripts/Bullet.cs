@@ -18,7 +18,6 @@ public class Bullet : MonoBehaviour {
         Vector3 movement = transform.forward * Time.deltaTime * speed;
         if (distance + Vector3.Magnitude(movement) > hitInfo.distance)
         {
-            Debug.Log("Sending BulletHit to " + hitInfo.collider.gameObject);
             hitInfo.collider.gameObject.SendMessage("BulletHit", this, SendMessageOptions.RequireReceiver);
             Destroy(gameObject);
         }
