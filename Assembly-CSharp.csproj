@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\HealthBar.cs" />
      <Compile Include="Assets\Scripts\RigidbodyController.cs" />
      <Compile Include="Assets\Scripts\ShootableThing.cs" />
+     <Compile Include="Assets\Scripts\ShowControls.cs" />
      <Compile Include="Assets\Scripts\Wall.cs" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
   </ItemGroup>
