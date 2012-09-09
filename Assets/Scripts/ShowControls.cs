@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 public enum MouseDirection { None, Horizontal, Vertical, Both }
-public enum MouseButton { None, LeftClick, RightClick, MiddleClick, ScrollWheel };
+public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, ScrollWheel };
 
 public class Control
 {
     public string description;
     public KeyCode[] keys = null;
-    public MouseButton[] buttons = null;
+    public MouseButton button = MouseButton.None;
     public MouseDirection direction = MouseDirection.None;
 
     public Control(string description, KeyCode key)
@@ -30,30 +30,13 @@ public class Control
     public Control(string description, MouseButton button)
     {
         this.description = description;
-        if (button == MouseButton.None)
-            this.buttons = null;
-        else
-            this.buttons = new MouseButton[] { button };
-    }
-    public Control(string description, MouseButton[] buttons)
-    {
-        this.description = description;
-        this.buttons = buttons;
+        this.button = button;
     }
     public Control(string description, MouseDirection direction, MouseButton button)
     {
         this.description = description;
         this.direction = direction;
-        if(button == MouseButton.None)
-            this.buttons = null;
-        else
-            this.buttons = new MouseButton[1] { button };
-    }
-    public Control(string description, MouseDirection direction, MouseButton[] buttons)
-    {
-        this.description = description;
-        this.direction = direction;
-        this.buttons = buttons;
+        this.button = button;
     }
 
     public override string ToString()
@@ -63,14 +46,13 @@ public class Control
         {
             foreach(KeyCode key in keys)
                 msg += string.Format("[{0}]", key);
-            if(buttons != null || direction != MouseDirection.None)
+            if(button != MouseButton.None)
                 msg += " + ";
         }
         if (direction != MouseDirection.None)
             msg += string.Format("[dir {0}]", direction.ToString("G"));
-        if(buttons != null)
-            foreach(MouseButton button in buttons)
-                msg += string.Format("[but {0}]", button.ToString("G"));
+        if(button != MouseButton.None)
+            msg += string.Format("[but {0}]", button.ToString("G"));
 
         msg += string.Format(": {0}", description);
         return msg;
@@ -224,9 +206,9 @@ public class ShowControls : MonoBehaviour {
             new Control("oneDir", MouseDirection.Horizontal),
             new Control("oneButton", MouseButton.LeftClick),
             mega,
-            new Control("manyButton", new MouseButton[] { MouseButton.LeftClick, MouseButton.RightClick }),
+            new Control("manyButton", MouseButton.BothClick),
             new Control("oneDir+oneButton", MouseButton.ScrollWheel),
-            new Control("oneDir+manyButton", MouseDirection.Both, new MouseButton[] { MouseButton.LeftClick, MouseButton.RightClick })
+            new Control("oneDir+manyButton", MouseDirection.Both, MouseButton.MiddleClick)
         });
 
         bool shiftRight = false;
@@ -289,28 +271,27 @@ public class ShowControls : MonoBehaviour {
         } 
 
         // draw the mouse, if necessary
-        if (control.buttons != null || control.direction != MouseDirection.None)
+        if (control.button != MouseButton.None || control.direction != MouseDirection.None)
         {
             GUI.DrawTexture(texRect, mouseBase);
-            if (control.buttons != null)
+            switch (control.button)
             {
-                foreach (MouseButton button in control.buttons)
-                {
-                    switch (button)
-                    {
-                        case MouseButton.LeftClick:
-                            GUI.DrawTexture(texRect, mouseLeftClick); break;
-                        case MouseButton.RightClick:
-                            GUI.DrawTexture(texRect, mouseRightClick); break;
-                        case MouseButton.MiddleClick:
-                            GUI.DrawTexture(texRect, mouseWheel); break;
-                        case MouseButton.ScrollWheel:
-                            GUI.DrawTexture(texRect, mouseWheel); break;
-                        default:
-                            Debug.LogError("Unsupported MouseButton " + button);
-                            return;
-                    }
-                }
+                case MouseButton.None:
+                    break;
+                case MouseButton.LeftClick:
+                    GUI.DrawTexture(texRect, mouseLeftClick); break;
+                case MouseButton.RightClick:
+                    GUI.DrawTexture(texRect, mouseRightClick); break;
+                case MouseButton.BothClick:
+                    GUI.DrawTexture(texRect, mouseLeftClick);
+                    GUI.DrawTexture(texRect, mouseRightClick); break;
+                case MouseButton.MiddleClick:
+                    GUI.DrawTexture(texRect, mouseMiddleClick); break;
+                case MouseButton.ScrollWheel:
+                    GUI.DrawTexture(texRect, mouseWheel); break;
+                default:
+                    Debug.LogError("Unsupported MouseButton " + control.button);
+                    return;
             }
             switch (control.direction)
             {
