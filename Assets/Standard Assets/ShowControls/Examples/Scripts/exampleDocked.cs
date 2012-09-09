@@ -14,6 +14,7 @@ public class exampleDocked : MonoBehaviour {
         if (sc == null && Input.GetKeyDown(KeyCode.Tab))
         {
             sc = ShowControls.CreateFullscreen(new ArrayList(new[] {
+                new ControlItem("Move", CustomDisplay.arrows),
                 new ControlItem("Test", KeyCode.E),
                 new ControlItem("Test", KeyCode.E),
                 new ControlItem("Test", KeyCode.E),

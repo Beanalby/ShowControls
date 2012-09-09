@@ -8,6 +8,24 @@ public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, S
 public enum ShowControlPosition { Top, Bottom };
 public enum ShowControlStyle { Dock, FullScreen  };
 
+public class CustomDisplay
+{
+    public static CustomDisplay wasd = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialWASD", typeof(Texture)));
+    public static CustomDisplay arrows = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialArrows", typeof(Texture)));
+    public Texture customTexture;
+
+    public CustomDisplay(Texture tex)
+    {
+        if (tex == null)
+        {
+            Debug.Log("CustomDisplay has null texture, trying to load manually");
+            tex = (Texture)Resources.Load("Textures/showControlsSpecialWASD.png", typeof(Texture));
+            Debug.Log("after reload, tex=" + tex);
+        }
+        customTexture = tex;
+    }
+}
+
 public class ControlItem
 {
     /* list of keys that should use the "big" key instead of the small.
@@ -112,6 +130,7 @@ public class ControlItem
     public KeyCode[] keys = null;
     public MouseButton button = MouseButton.None;
     public MouseDirection direction = MouseDirection.None;
+    public CustomDisplay custom = null;
 
     public ControlItem(string description, KeyCode key)
     {
@@ -176,6 +195,11 @@ public class ControlItem
         this.direction = direction;
         this.button = button;
         this.keys = keys;
+    }
+    public ControlItem(string description, CustomDisplay custom)
+    {
+        this.description = description;
+        this.custom = custom;
     }
 
     public override string ToString()
@@ -446,6 +470,11 @@ public class ShowControls : MonoBehaviour {
         Rect texRect = new Rect(x, y, texSize, texSize);
         Rect labelRect;
 
+        if (control.custom != null)
+        {
+            ShowCustom(texRect, control.custom);
+            texRect.x += texSize;
+        }
         // draw each of the keys
         if (control.keys != null)
         {
@@ -472,6 +501,11 @@ public class ShowControls : MonoBehaviour {
         // put the text description in the leftover space
         labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), texSize);
         GUI.Box(labelRect, control.description, gui.box);
+    }
+
+    private void ShowCustom(Rect texRect, CustomDisplay custom)
+    {
+        GUI.DrawTexture(texRect, custom.customTexture);
     }
 
     private void ShowKey(Rect texRect, KeyCode key)
