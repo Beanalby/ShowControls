@@ -10,6 +10,7 @@ public enum ShowControlStyle { Dock, FullScreen  };
 
 public class CustomDisplay
 {
+    public static CustomDisplay esdf = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialESDF", typeof(Texture)));
     public static CustomDisplay wasd = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialWASD", typeof(Texture)));
     public static CustomDisplay arrows = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialArrows", typeof(Texture)));
     public Texture customTexture;
@@ -393,7 +394,7 @@ public class ShowControls : MonoBehaviour {
         if (style == ShowControlStyle.FullScreen)
         {
             GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
-            GUI.Label(new Rect(0, 0, Screen.width, fullscreenTitleHeight), fullscreenTitle, gui.customStyles[0]);
+            GUI.Label(new Rect(0, 0, Screen.width, fullscreenTitleHeight), fullscreenTitle, gui.customStyles[TITLE_STYLE]);
 
             /* 3 things are used on the bottom - "Press " label on the left side,
              * widget for the clear key in the center, and " to continue" label
