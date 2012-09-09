@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 35c690bb363a5cf4d9d7b91c705b868f
-MonoImporter:
-  serializedVersion: 2
-  defaultReferences:
-  - hitEffect: {instanceID: 0}
-  - healthbarPrefab: {fileID: 100000, guid: 93f4242f7d6ed2a46a09329dd11f2584, type: 2}
-  executionOrder: 0
-  icon: {instanceID: 0}

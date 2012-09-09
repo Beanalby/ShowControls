@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: aa9209492b4c27a49a12e25b87a3e9c3
-MonoImporter:
-  serializedVersion: 2
-  defaultReferences:
-  - healthTexture: {instanceID: 0}
-  - missingTexture: {instanceID: 0}
-  executionOrder: 0
-  icon: {instanceID: 0}
