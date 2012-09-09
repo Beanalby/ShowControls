@@ -10,6 +10,104 @@ public enum ShowControlStyle { Dock, FullScreen  };
 
 public class ControlItem
 {
+    /* list of keys that should use the "big" key instead of the small.
+     * Also has optional ToString() override to make some fit. */
+    public static Dictionary<KeyCode, string> BigKeys = new Dictionary<KeyCode, string>()
+    {
+        { KeyCode.Backspace, "Bksp" },
+        { KeyCode.Delete, "Del" },
+        { KeyCode.Tab, null },
+        { KeyCode.Clear, null },
+        { KeyCode.Return, null },
+        { KeyCode.Pause, null },
+        { KeyCode.Escape, "Esc" },
+        { KeyCode.Space, null },
+        { KeyCode.Keypad0, "N0" }, /* doesn't NEED to be wide, but it is IRL */
+        { KeyCode.KeypadEnter, "NEnter" },
+        { KeyCode.Home, null },
+        { KeyCode.End, null },
+        { KeyCode.PageUp, "PgUp" },
+        { KeyCode.PageDown, "PgDn" },
+        { KeyCode.Numlock, "NumLk" },
+        { KeyCode.CapsLock, "CapsLk" },
+        { KeyCode.LeftShift, "L Shift"},
+        { KeyCode.LeftControl, "L Ctrl" },
+        { KeyCode.RightControl, "R Ctrl" },
+        { KeyCode.LeftAlt, "L Alt" },
+        { KeyCode.RightAlt, "R Alt" },
+        { KeyCode.LeftApple, "L Apple" },
+        { KeyCode.RightApple, "R Apple" },
+        { KeyCode.LeftWindows, "L Win" },
+        { KeyCode.RightWindows, "R Win" },
+        { KeyCode.AltGr, "Alt Gr" },
+        { KeyCode.Help, null },
+        { KeyCode.Print, null },
+        { KeyCode.SysReq, null },
+        { KeyCode.Break, null },
+        { KeyCode.Menu, null }
+    };
+
+    /* defines custom strings for some of the small keys */
+    public static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
+    {
+        { KeyCode.Keypad1, "N1" },
+        { KeyCode.Keypad2, "N2" },
+        { KeyCode.Keypad3, "N3" },
+        { KeyCode.Keypad4, "N4" },
+        { KeyCode.Keypad5, "N5" },
+        { KeyCode.Keypad6, "N6" },
+        { KeyCode.Keypad7, "N7" },
+        { KeyCode.Keypad8, "N8" },
+        { KeyCode.Keypad9, "N9" },
+        { KeyCode.KeypadPeriod, "N." },
+        { KeyCode.KeypadDivide, "N/" },
+        { KeyCode.KeypadMultiply, "N*" },
+        { KeyCode.KeypadMinus, "N-" },
+        { KeyCode.KeypadPlus, "N+" },
+        { KeyCode.KeypadEquals, "N=" },
+        { KeyCode.UpArrow, "\u2191" },
+        { KeyCode.DownArrow, "\u2193" },
+        { KeyCode.LeftArrow, "\u2190" },
+        { KeyCode.RightArrow, "\u2192" },
+        { KeyCode.Insert, "Ins" },
+        { KeyCode.Alpha0, "0" },
+        { KeyCode.Alpha1, "1" },
+        { KeyCode.Alpha2, "2" },
+        { KeyCode.Alpha3, "3" },
+        { KeyCode.Alpha4, "4" },
+        { KeyCode.Alpha5, "5" },
+        { KeyCode.Alpha6, "6" },
+        { KeyCode.Alpha7, "7" },
+        { KeyCode.Alpha8, "8" },
+        { KeyCode.Alpha9, "9" },
+        { KeyCode.Exclaim, "!" },
+        { KeyCode.DoubleQuote, "\"" },
+        { KeyCode.Hash, "#" },
+        { KeyCode.Dollar, "$" },
+        { KeyCode.Ampersand, "&" },
+        { KeyCode.Quote, "'" },
+        { KeyCode.LeftParen, "(" },
+        { KeyCode.RightParen, ")" },
+        { KeyCode.Asterisk, "*" },
+        { KeyCode.Plus, "+" },
+        { KeyCode.Comma, "," },
+        { KeyCode.Minus, "-" },
+        { KeyCode.Period, "." },
+        { KeyCode.Slash, "/" },
+        { KeyCode.Colon, ":" },
+        { KeyCode.Semicolon, ";" },
+        { KeyCode.Less, "<" },
+        { KeyCode.Greater, ">" },
+        { KeyCode.Question, "?" },
+        { KeyCode.At, "@" },
+        { KeyCode.LeftBracket, "[" },
+        { KeyCode.Backslash, "\\" },
+        { KeyCode.RightBracket, "]" },
+        { KeyCode.Caret, "^" },
+        { KeyCode.Underscore, "_" },
+        { KeyCode.BackQuote, "`" },
+    };
+
     public string description;
     public KeyCode[] keys = null;
     public MouseButton button = MouseButton.None;
@@ -102,116 +200,26 @@ public class ControlItem
 
 public class ShowControls : MonoBehaviour {
 
-    /* list of keys that should use the "big" key instead of the small.
-     * Also has optional ToString() override to make some fit. */
-    private  static Dictionary<KeyCode, string> BigKeys = new Dictionary<KeyCode, string>()
-    {
-        { KeyCode.Backspace, "Bksp" },
-        { KeyCode.Delete, "Del" },
-        { KeyCode.Tab, null },
-        { KeyCode.Clear, null },
-        { KeyCode.Return, null },
-        { KeyCode.Pause, null },
-        { KeyCode.Escape, "Esc" },
-        { KeyCode.Space, null },
-        { KeyCode.Keypad0, "N0" }, /* doesn't NEED to be wide, but it is IRL */
-        { KeyCode.KeypadEnter, "NEnter" },
-        { KeyCode.Home, null },
-        { KeyCode.End, null },
-        { KeyCode.PageUp, "PgUp" },
-        { KeyCode.PageDown, "PgDn" },
-        { KeyCode.Numlock, "NumLk" },
-        { KeyCode.CapsLock, "CapsLk" },
-        { KeyCode.LeftShift, "L Shift"},
-        { KeyCode.LeftControl, "L Ctrl" },
-        { KeyCode.RightControl, "R Ctrl" },
-        { KeyCode.LeftAlt, "L Alt" },
-        { KeyCode.RightAlt, "R Alt" },
-        { KeyCode.LeftApple, "L Apple" },
-        { KeyCode.RightApple, "R Apple" },
-        { KeyCode.LeftWindows, "L Win" },
-        { KeyCode.RightWindows, "R Win" },
-        { KeyCode.AltGr, "Alt Gr" },
-        { KeyCode.Help, null },
-        { KeyCode.Print, null },
-        { KeyCode.SysReq, null },
-        { KeyCode.Break, null },
-        { KeyCode.Menu, null }
-    };
-
-    /* defines custom strings for some of the small keys */
-    private static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
-    {
-        { KeyCode.Keypad1, "N1" },
-        { KeyCode.Keypad2, "N2" },
-        { KeyCode.Keypad3, "N3" },
-        { KeyCode.Keypad4, "N4" },
-        { KeyCode.Keypad5, "N5" },
-        { KeyCode.Keypad6, "N6" },
-        { KeyCode.Keypad7, "N7" },
-        { KeyCode.Keypad8, "N8" },
-        { KeyCode.Keypad9, "N9" },
-        { KeyCode.KeypadPeriod, "N." },
-        { KeyCode.KeypadDivide, "N/" },
-        { KeyCode.KeypadMultiply, "N*" },
-        { KeyCode.KeypadMinus, "N-" },
-        { KeyCode.KeypadPlus, "N+" },
-        { KeyCode.KeypadEquals, "N=" },
-        { KeyCode.UpArrow, "\u2191" },
-        { KeyCode.DownArrow, "\u2193" },
-        { KeyCode.LeftArrow, "\u2190" },
-        { KeyCode.RightArrow, "\u2192" },
-        { KeyCode.Insert, "Ins" },
-        { KeyCode.Alpha0, "0" },
-        { KeyCode.Alpha1, "1" },
-        { KeyCode.Alpha2, "2" },
-        { KeyCode.Alpha3, "3" },
-        { KeyCode.Alpha4, "4" },
-        { KeyCode.Alpha5, "5" },
-        { KeyCode.Alpha6, "6" },
-        { KeyCode.Alpha7, "7" },
-        { KeyCode.Alpha8, "8" },
-        { KeyCode.Alpha9, "9" },
-        { KeyCode.Exclaim, "!" },
-        { KeyCode.DoubleQuote, "\"" },
-        { KeyCode.Hash, "#" },
-        { KeyCode.Dollar, "$" },
-        { KeyCode.Ampersand, "&" },
-        { KeyCode.Quote, "'" },
-        { KeyCode.LeftParen, "(" },
-        { KeyCode.RightParen, ")" },
-        { KeyCode.Asterisk, "*" },
-        { KeyCode.Plus, "+" },
-        { KeyCode.Comma, "," },
-        { KeyCode.Minus, "-" },
-        { KeyCode.Period, "." },
-        { KeyCode.Slash, "/" },
-        { KeyCode.Colon, ":" },
-        { KeyCode.Semicolon, ";" },
-        { KeyCode.Less, "<" },
-        { KeyCode.Greater, ">" },
-        { KeyCode.Question, "?" },
-        { KeyCode.At, "@" },
-        { KeyCode.LeftBracket, "[" },
-        { KeyCode.Backslash, "\\" },
-        { KeyCode.RightBracket, "]" },
-        { KeyCode.Caret, "^" },
-        { KeyCode.Underscore, "_" },
-        { KeyCode.BackQuote, "`" },
-    };
-
     public GUISkin gui;
-    public float showDuration = 5;
+
+    public ArrayList controls;
+
+    public bool destroyWhenDone = false;
+    public float showDuration = 3;
     public bool hideLeftRightOnModifierKeys = true;
+    public bool pauseOnDisplay = false;
+
+    public ShowControlStyle style = ShowControlStyle.Dock;
+    public KeyCode fullscreenClearKey = KeyCode.Tab;
+    public string fullscreenTitle = "Controls";
+    public int fullscreenTitleHeight = 100;
+    public string fullscreenMessageLeft = "Press ";
+    public string fullscreenMessageRight = " to continue";
+
+    public ShowControlPosition position = ShowControlPosition.Top;
 
     public Texture keyBaseSmall;
     public Texture keyBaseLarge;
-    public GUIStyle keyStyle = new GUIStyle();
-
-    public ShowControlStyle style = ShowControlStyle.Dock;
-    public ControlItem ClearFullscreen = new ControlItem("", KeyCode.Space);
-
-    public ShowControlPosition position = ShowControlPosition.Top;
 
     public Texture mouseBase;
     public Texture mouseLeftClick;
@@ -225,13 +233,18 @@ public class ShowControls : MonoBehaviour {
 
     private const int texSize = 64;
 
+    // offsets in the gui custom styles
+    private static int TITLE_STYLE = 0;
+    private static int KEYBOARD_STYLE = 1;
+    // created dynamically based off title style
+    private GUIStyle fullscreenBottomLeftStyle;
+    private GUIStyle fullscreenBottomRightStyle;
+
     // make this configurable someday
     private static int NUM_COLUMNS = 2;
 
-    public ArrayList controls;
     private bool doShow = false;
-    private float showStart = -1, showStop = -1, slideSpeed=.5f;
-    public bool destroyWhenDone = false;
+    private float showStart = -1, showStop = -1, slideSpeed=.25f, savedTimeScale;
 
     public static ShowControls CreateDock(ArrayList controls, bool showOnCreate=true)
     {
@@ -251,7 +264,9 @@ public class ShowControls : MonoBehaviour {
         ShowControls sc = obj.GetComponent<ShowControls>();
         sc.controls = controls;
         sc.style = ShowControlStyle.FullScreen;
+        sc.slideSpeed = -1;
         sc.showDuration = -1;
+        sc.pauseOnDisplay = true;
         sc.destroyWhenDone = true;
         if (showOnCreate)
             sc.Show();
@@ -266,14 +281,26 @@ public class ShowControls : MonoBehaviour {
         }
         doShow = true;
         showStart = Time.time;
+        if (pauseOnDisplay)
+        {
+            savedTimeScale = Time.timeScale;
+            Time.timeScale = 0;
+            AudioListener.pause = true;
+        }
+        if (style == ShowControlStyle.FullScreen)
+        {
+            fullscreenBottomLeftStyle = new GUIStyle(gui.customStyles[TITLE_STYLE]);
+            fullscreenBottomLeftStyle.alignment = TextAnchor.MiddleRight;
+            fullscreenBottomRightStyle = new GUIStyle(gui.customStyles[TITLE_STYLE]);
+            fullscreenBottomRightStyle.alignment = TextAnchor.MiddleLeft;
+        }
     }
-    
     /* Hide() indicates we want to stop showing.  Note that this doesn't
      * necessarily mean we stop showing immediately; if we're sliding,
      * we keep showing through the slide. */
     public void Hide()
     {
-        if (slideSpeed == -1)
+        if (style == ShowControlStyle.FullScreen || slideSpeed == -1)
         {
             Finished();
             return;
@@ -285,13 +312,17 @@ public class ShowControls : MonoBehaviour {
         }
         showStop = Time.time;
     }
-
     /* Finished() is called when we are really done displaying,
      * either because we're instantaneously toggling off, or because
      * we're sliding and have finished the slide. */
     private void Finished()
     {
         doShow = false;
+        if (pauseOnDisplay)
+        {
+            Time.timeScale = savedTimeScale;
+            AudioListener.pause = false;
+        }
         if (destroyWhenDone)
             Destroy(gameObject);
     }
@@ -315,40 +346,78 @@ public class ShowControls : MonoBehaviour {
             Hide();
             // if we're sliding, we keep showing.  If not, we're done
             if (doShow)
-                ShowAllControls();
+                DisplayControls();
             return;
         }
+        /* if we're fullscreen, check for the clear key */
+        if (style == ShowControlStyle.FullScreen)
+        {
+            if (Input.GetKeyDown(fullscreenClearKey))
+            {
+                Hide();
+                return;
+            }
 
+        }
         // normal case, just display.
-        ShowAllControls();
-
+        DisplayControls();
     }
-    private void ShowAllControls()
+
+    private void DisplayControls()
     {
-        if (gui != null)
-            GUI.skin = gui;
-
-        bool shiftRight = false;
-        int x=0, y=0, slideOffset = 0;
-
-        if (Time.time < showStart + slideSpeed)
+        int x=0, y, slideOffset=0;
+        if (style == ShowControlStyle.FullScreen)
         {
-            int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
-            float slidePercent = (slideSpeed - (Time.time - showStart)) / (float)slideSpeed;
-            slideOffset = (int)(slidePercent * slideTotal);
-        }
-        if (showStop != -1)
-        {
-            int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
-            float slidePercent = (Time.time - showStop) / (float)slideSpeed;
-            slideOffset = (int)(slidePercent * slideTotal);
-        }
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
+            GUI.Label(new Rect(0, 0, Screen.width, fullscreenTitleHeight), fullscreenTitle, gui.customStyles[0]);
 
-        if (position == ShowControlPosition.Top)
-            y = 0 - slideOffset;
+            /* 3 things are used on the bottom - "Press " label on the left side,
+             * widget for the clear key in the center, and " to continue" label
+             * on the right side. */
+            // TODO adjust width of bottom labels based on relative sizes
+            int PADDING = 5;
+                    
+            int labelPos = Screen.height - fullscreenTitleHeight;
+            int labelWidth = (Screen.width / 2) - (texSize / 2 + (2*PADDING));
+            Rect r = new Rect(0, labelPos, labelWidth, fullscreenTitleHeight);
+            GUI.Label(r, fullscreenMessageLeft, fullscreenBottomLeftStyle);
+
+            int yPos = labelPos + (fullscreenTitleHeight - texSize) / 2;
+            r = new Rect(labelWidth + PADDING, yPos, texSize, texSize);
+            ShowKey(r, fullscreenClearKey);
+
+            r = new Rect(labelWidth + texSize + PADDING * 2, labelPos, labelWidth, fullscreenTitleHeight);
+            GUI.Label(r, fullscreenMessageRight, fullscreenBottomRightStyle);
+
+            y = fullscreenTitleHeight;
+        }
         else
-            y = Screen.height - texSize + slideOffset;
+        {
+            if (Time.time < showStart + slideSpeed)
+            {
+                int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
+                float slidePercent = (slideSpeed - (Time.time - showStart)) / (float)slideSpeed;
+                slideOffset = (int)(slidePercent * slideTotal);
+            }
+            if (showStop != -1)
+            {
+                int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
+                float slidePercent = (Time.time - showStop) / (float)slideSpeed;
+                slideOffset = (int)(slidePercent * slideTotal);
+            }
 
+            if (position == ShowControlPosition.Top)
+                y = 0 - slideOffset;
+            else
+                y = Screen.height - texSize + slideOffset;
+        }
+
+        ShowAllControls(x, y);
+    }
+
+    private void ShowAllControls(int x, int y)
+    {
+        bool shiftRight = false;
         foreach (ControlItem control in controls)
         {
             if (shiftRight)
@@ -361,9 +430,9 @@ public class ShowControls : MonoBehaviour {
             if (shiftRight)
             {
                 if (position == ShowControlPosition.Top)
-                    y += texSize;
+                    y += texSize+5;
                 else
-                    y -= texSize;
+                    y -= texSize+5;
                 shiftRight = false;
             }
             else
@@ -382,32 +451,7 @@ public class ShowControls : MonoBehaviour {
         {
             foreach (KeyCode key in control.keys)
             {
-                Texture tex = null;
-                string label = null;
-                if(BigKeys.ContainsKey(key))
-                {
-                    tex = keyBaseLarge;
-                    label = BigKeys[key];
-                    if (label == null)
-                        label = key.ToString();
-                    else
-                    {
-                        if (hideLeftRightOnModifierKeys &&
-                            (label.StartsWith("R ") || label.StartsWith("L ")))
-                            label = label.Substring(2);
-                    }
-                }
-                else
-                {
-                    tex = keyBaseSmall;
-                    if (SmallKeys.ContainsKey(key))
-                        label = SmallKeys[key];
-                    else
-                        label = key.ToString();
-                }       
-                GUI.DrawTexture(texRect, tex);
-                labelRect = new Rect(texRect.x, texRect.y, texSize, texSize - 15);
-                GUI.Label(labelRect, label, keyStyle);
+                ShowKey(texRect, key);
                 texRect.x += texSize;
             }
         } 
@@ -422,44 +466,78 @@ public class ShowControls : MonoBehaviour {
                 GUI.DrawTexture(plusRect, plus);
                 texRect.x += texSize / 4;
             }
-            GUI.DrawTexture(texRect, mouseBase);
-            switch (control.button)
-            {
-                case MouseButton.None:
-                    break;
-                case MouseButton.LeftClick:
-                    GUI.DrawTexture(texRect, mouseLeftClick); break;
-                case MouseButton.RightClick:
-                    GUI.DrawTexture(texRect, mouseRightClick); break;
-                case MouseButton.BothClick:
-                    GUI.DrawTexture(texRect, mouseLeftClick);
-                    GUI.DrawTexture(texRect, mouseRightClick); break;
-                case MouseButton.MiddleClick:
-                    GUI.DrawTexture(texRect, mouseMiddleClick); break;
-                case MouseButton.ScrollWheel:
-                    GUI.DrawTexture(texRect, mouseWheel); break;
-                default:
-                    Debug.LogError("Unsupported MouseButton " + control.button);
-                    return;
-            }
-            switch (control.direction)
-            {
-                case MouseDirection.None:
-                    break;
-                case MouseDirection.Horizontal:
-                    GUI.DrawTexture(texRect, mouseHorizontal); break;
-                case MouseDirection.Vertical:
-                    GUI.DrawTexture(texRect, mouseVertical); break;
-                case MouseDirection.Both:
-                    GUI.DrawTexture(texRect, mouseHorizontalAndVertical); break;
-                default:
-                    Debug.LogError("Unsupported MouseDirection " + control.direction);
-                    return;
-            }
+            ShowMouse(texRect, control.direction, control.button);
             texRect.x += texSize;
         }
         // put the text description in the leftover space
         labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), texSize);
-        GUI.Box(labelRect, control.description);
+        GUI.Box(labelRect, control.description, gui.box);
+    }
+
+    private void ShowKey(Rect texRect, KeyCode key)
+    {
+        Texture tex = null;
+        string label = null;
+        if (ControlItem.BigKeys.ContainsKey(key))
+        {
+            tex = keyBaseLarge;
+            label = ControlItem.BigKeys[key];
+            if (label == null)
+                label = key.ToString();
+            else
+            {
+                if (hideLeftRightOnModifierKeys &&
+                    (label.StartsWith("R ") || label.StartsWith("L ")))
+                    label = label.Substring(2);
+            }
+        }
+        else
+        {
+            tex = keyBaseSmall;
+            if (ControlItem.SmallKeys.ContainsKey(key))
+                label = ControlItem.SmallKeys[key];
+            else
+                label = key.ToString();
+        }
+        GUI.DrawTexture(texRect, tex);
+        Rect labelRect = new Rect(texRect.x, texRect.y, texSize, texSize - 15);
+        GUI.Label(labelRect, label, gui.customStyles[KEYBOARD_STYLE]);
+    }
+    private void ShowMouse(Rect texRect, MouseDirection direction, MouseButton button)
+    {
+        GUI.DrawTexture(texRect, mouseBase);
+        switch (button)
+        {
+            case MouseButton.None:
+                break;
+            case MouseButton.LeftClick:
+                GUI.DrawTexture(texRect, mouseLeftClick); break;
+            case MouseButton.RightClick:
+                GUI.DrawTexture(texRect, mouseRightClick); break;
+            case MouseButton.BothClick:
+                GUI.DrawTexture(texRect, mouseLeftClick);
+                GUI.DrawTexture(texRect, mouseRightClick); break;
+            case MouseButton.MiddleClick:
+                GUI.DrawTexture(texRect, mouseMiddleClick); break;
+            case MouseButton.ScrollWheel:
+                GUI.DrawTexture(texRect, mouseWheel); break;
+            default:
+                Debug.LogError("Unsupported MouseButton " + button);
+                return;
+        }
+        switch (direction)
+        {
+            case MouseDirection.None:
+                break;
+            case MouseDirection.Horizontal:
+                GUI.DrawTexture(texRect, mouseHorizontal); break;
+            case MouseDirection.Vertical:
+                GUI.DrawTexture(texRect, mouseVertical); break;
+            case MouseDirection.Both:
+                GUI.DrawTexture(texRect, mouseHorizontalAndVertical); break;
+            default:
+                Debug.LogError("Unsupported MouseDirection " + direction);
+                return;
+        }
     }
 }

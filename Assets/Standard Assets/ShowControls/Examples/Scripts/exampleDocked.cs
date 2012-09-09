@@ -3,6 +3,7 @@ using System.Collections;
 
 public class exampleDocked : MonoBehaviour {
 
+    ShowControls sc = null;
 	// Use this for initialization
 	void Start () {
 	
@@ -10,10 +11,17 @@ public class exampleDocked : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.H))
+        if (sc == null && Input.GetKeyDown(KeyCode.Tab))
         {
-            ShowControls.CreateDock(new ArrayList(new[] {
-                new ControlItem("Test", KeyCode.E)}));
+            sc = ShowControls.CreateFullscreen(new ArrayList(new[] {
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E),
+                new ControlItem("Test", KeyCode.E)
+            }));
         }
 	}
 }
