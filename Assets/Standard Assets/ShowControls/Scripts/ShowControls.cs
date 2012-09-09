@@ -6,7 +6,7 @@ public enum MouseDirection { None, Horizontal, Vertical, Both }
 public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, ScrollWheel };
 
 public enum ShowControlPosition { Top, Bottom };
-public enum ShowControlStyle { Dock, FullScreen  };
+public enum ShowControlStyle { Docked, FullScreen  };
 
 public class CustomDisplay
 {
@@ -17,12 +17,6 @@ public class CustomDisplay
 
     public CustomDisplay(Texture tex)
     {
-        if (tex == null)
-        {
-            Debug.Log("CustomDisplay has null texture, trying to load manually");
-            tex = (Texture)Resources.Load("Textures/showControlsSpecialWASD.png", typeof(Texture));
-            Debug.Log("after reload, tex=" + tex);
-        }
         customTexture = tex;
     }
 }
@@ -229,12 +223,12 @@ public class ShowControls : MonoBehaviour {
 
     public ArrayList controls;
 
-    public bool destroyWhenDone = false;
+    public bool destroyWhenDone = true;
     public float showDuration = 3;
     public bool hideLeftRightOnModifierKeys = true;
     public bool pauseOnDisplay = false;
 
-    public ShowControlStyle style = ShowControlStyle.Dock;
+    public ShowControlStyle style = ShowControlStyle.Docked;
     public KeyCode fullscreenClearKey = KeyCode.Tab;
     public string fullscreenTitle = "Controls";
     public int fullscreenTitleHeight = 100;
@@ -271,30 +265,32 @@ public class ShowControls : MonoBehaviour {
     private bool doShow = false;
     private float showStart = -1, showStop = -1, slideSpeed=.25f, savedTimeScale;
 
-    public static ShowControls CreateDock(ArrayList controls, bool showOnCreate=true)
+    public static ShowControls CreateDocked(ControlItem control)
+    {
+        return CreateDocked(new[] { control });
+    }
+    public static ShowControls CreateDocked(ControlItem[] controls)
     {
         GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
         GameObject obj = (GameObject)Instantiate(prefab);
         ShowControls sc = obj.GetComponent<ShowControls>();
-        sc.controls = controls;
-        sc.destroyWhenDone = true;
-        if (showOnCreate)
-            sc.Show();
+        sc.controls = new ArrayList(controls);
         return sc;
     }
-    public static ShowControls CreateFullscreen(ArrayList controls, bool showOnCreate=true)
+    public static ShowControls CreateFullscreen(ControlItem item)
+    {
+        return CreateFullscreen(new[] { item });
+    }
+    public static ShowControls CreateFullscreen(ControlItem[] controls)
     {
         GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
         GameObject obj = (GameObject)Instantiate(prefab);
         ShowControls sc = obj.GetComponent<ShowControls>();
-        sc.controls = controls;
+        sc.controls = new ArrayList(controls);
         sc.style = ShowControlStyle.FullScreen;
         sc.slideSpeed = -1;
         sc.showDuration = -1;
         sc.pauseOnDisplay = true;
-        sc.destroyWhenDone = true;
-        if (showOnCreate)
-            sc.Show();
         return sc;
     }
     public void Show()
@@ -337,6 +333,7 @@ public class ShowControls : MonoBehaviour {
         }
         showStop = Time.time;
     }
+
     /* Finished() is called when we are really done displaying,
      * either because we're instantaneously toggling off, or because
      * we're sliding and have finished the slide. */
@@ -374,18 +371,17 @@ public class ShowControls : MonoBehaviour {
                 DisplayControls();
             return;
         }
-        /* if we're fullscreen, check for the clear key */
-        if (style == ShowControlStyle.FullScreen)
-        {
-            if (Input.GetKeyDown(fullscreenClearKey))
-            {
-                Hide();
-                return;
-            }
 
-        }
         // normal case, just display.
         DisplayControls();
+    }
+
+    public void Toggle()
+    {
+        if (doShow && showStop == -1)
+            Hide();
+        else
+            Show();
     }
 
     private void DisplayControls()
@@ -574,5 +570,10 @@ public class ShowControls : MonoBehaviour {
                 Debug.LogError("Unsupported MouseDirection " + direction);
                 return;
         }
+    }
+
+    public bool IsShown
+    {
+        get { return doShow; }
     }
 }
