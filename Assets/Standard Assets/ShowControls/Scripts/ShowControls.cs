@@ -225,9 +225,12 @@ public class ShowControls : MonoBehaviour {
 
     private const int texSize = 64;
 
+    // make this configurable someday
+    private static int NUM_COLUMNS = 2;
+
     public ArrayList controls;
-    private bool doShow = false, doSlide = false;
-    private float showStart = -1, showStop = -1, slideSpeed=1;
+    private bool doShow = false;
+    private float showStart = -1, showStop = -1, slideSpeed=.5f;
     public bool destroyWhenDone = false;
 
     public static ShowControls CreateDock(ArrayList controls, bool showOnCreate=true)
@@ -241,7 +244,6 @@ public class ShowControls : MonoBehaviour {
             sc.Show();
         return sc;
     }
-
     public static ShowControls CreateFullscreen(ArrayList controls, bool showOnCreate=true)
     {
         GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
@@ -255,52 +257,97 @@ public class ShowControls : MonoBehaviour {
             sc.Show();
         return sc;
     }
-
     public void Show()
     {
+        if (doShow)
+        {
+            Debug.LogError(name + " already showing, ignoring second show request.");
+            return;
+        }
         doShow = true;
         showStart = Time.time;
     }
-
+    
+    /* Hide() indicates we want to stop showing.  Note that this doesn't
+     * necessarily mean we stop showing immediately; if we're sliding,
+     * we keep showing through the slide. */
     public void Hide()
     {
-        if (doSlide)
-            showStop = Time.time;
-        else
+        if (slideSpeed == -1)
         {
-            if (destroyWhenDone)
-                Destroy(gameObject);
+            Finished();
+            return;
         }
+        if (showStop != -1)
+        {
+            Debug.LogError("Already hiding, ignoring second hide request.");
+            return;
+        }
+        showStop = Time.time;
+    }
+
+    /* Finished() is called when we are really done displaying,
+     * either because we're instantaneously toggling off, or because
+     * we're sliding and have finished the slide. */
+    private void Finished()
+    {
+        doShow = false;
+        if (destroyWhenDone)
+            Destroy(gameObject);
     }
 
     public void OnGUI()
     {
-        if (doShow)
-        {
-            if (showDuration != -1 && Time.time > showStart + showDuration)
-            {
-                if (destroyWhenDone)
-                    Destroy(gameObject);
-                else
-                    doShow = false;
-            }
-            else
-                ShowAllControls();
-        }
-    }
+        if (!doShow)
+            return;
 
+        /* if we'd already started hiding, see if we're done */
+        if (showStop != -1 && Time.time > showStop + slideSpeed)
+        {
+            Finished();
+            return;
+        }
+
+        /* if we've got a max duration, haven't begun stopping yet, and
+         * are past the time that we want to stop, hide. */ 
+        if (showDuration != -1 && showStop == -1 && Time.time > showStart + showDuration)
+        {
+            Hide();
+            // if we're sliding, we keep showing.  If not, we're done
+            if (doShow)
+                ShowAllControls();
+            return;
+        }
+
+        // normal case, just display.
+        ShowAllControls();
+
+    }
     private void ShowAllControls()
     {
         if (gui != null)
             GUI.skin = gui;
 
         bool shiftRight = false;
-        int x=0, y;
+        int x=0, y=0, slideOffset = 0;
+
+        if (Time.time < showStart + slideSpeed)
+        {
+            int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
+            float slidePercent = (slideSpeed - (Time.time - showStart)) / (float)slideSpeed;
+            slideOffset = (int)(slidePercent * slideTotal);
+        }
+        if (showStop != -1)
+        {
+            int slideTotal = texSize * Mathf.CeilToInt((float)controls.Count / NUM_COLUMNS);
+            float slidePercent = (Time.time - showStop) / (float)slideSpeed;
+            slideOffset = (int)(slidePercent * slideTotal);
+        }
 
         if (position == ShowControlPosition.Top)
-            y = 0;
+            y = 0 - slideOffset;
         else
-            y = Screen.height - texSize;
+            y = Screen.height - texSize + slideOffset;
 
         foreach (ControlItem control in controls)
         {
@@ -413,6 +460,6 @@ public class ShowControls : MonoBehaviour {
         }
         // put the text description in the leftover space
         labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), texSize);
-        GUI.Box(labelRect, control.ToString());
+        GUI.Box(labelRect, control.description);
     }
 }
