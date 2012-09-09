@@ -38,6 +38,44 @@ public class Control
         this.direction = direction;
         this.button = button;
     }
+    public Control(string description, KeyCode key, MouseDirection direction)
+    {
+        this.description = description;
+        this.direction = direction;
+        this.keys = new KeyCode[1] { key };
+    }
+    public Control(string description, KeyCode key, MouseButton button)
+    {
+        this.description = description;
+        this.button = button;
+        this.keys = new KeyCode[1] { key };
+    }
+    public Control(string description, KeyCode key, MouseDirection direction, MouseButton button)
+    {
+        this.description = description;
+        this.direction = direction;
+        this.button = button;
+        this.keys = new KeyCode[1] { key };
+    }
+    public Control(string description, KeyCode[] keys, MouseDirection direction)
+    {
+        this.description = description;
+        this.direction = direction;
+        this.keys = keys;
+    }
+    public Control(string description, KeyCode[] keys, MouseButton button)
+    {
+        this.description = description;
+        this.button = button;
+        this.keys = keys;
+    }
+    public Control(string description, KeyCode[] keys, MouseDirection direction, MouseButton button)
+    {
+        this.description = description;
+        this.direction = direction;
+        this.button = button;
+        this.keys = keys;
+    }
 
     public override string ToString()
     {
@@ -162,6 +200,7 @@ public class ShowControls : MonoBehaviour {
 
     public GUISkin gui;
     public float showDuration = 5;
+    public bool hideLeftRightOnModifierKeys = true;
 
     public Texture keyBaseSmall;
     public Texture keyBaseLarge;
@@ -199,14 +238,12 @@ public class ShowControls : MonoBehaviour {
     {
         if (gui != null)
             GUI.skin = gui;
-        Control mega = new Control("COMBO!", MouseDirection.Both, MouseButton.RightClick);
-        mega.keys = new KeyCode[] { KeyCode.LeftShift };
         controls = new ArrayList(new[] {
             new Control("oneKey", KeyCode.Insert),
             new Control("manyKey", new KeyCode[] { KeyCode.RightApple, KeyCode.LeftShift}),
             new Control("oneDir", MouseDirection.Horizontal),
             new Control("oneButton", MouseButton.LeftClick),
-            mega,
+            new Control("COMBO!", KeyCode.LeftShift, MouseDirection.Both, MouseButton.RightClick),
             new Control("manyButton", MouseButton.BothClick),
             new Control("oneDir+oneButton", MouseButton.ScrollWheel),
             new Control("oneDir+manyButton", MouseDirection.Both, MouseButton.MiddleClick)
@@ -251,8 +288,14 @@ public class ShowControls : MonoBehaviour {
                 {
                     tex = keyBaseLarge;
                     label = BigKeys[key];
-                    if(label == null)
+                    if (label == null)
                         label = key.ToString();
+                    else
+                    {
+                        if (hideLeftRightOnModifierKeys &&
+                            (label.StartsWith("R ") || label.StartsWith("L ")))
+                            label = label.Substring(2);
+                    }
                 }
                 else
                 {
