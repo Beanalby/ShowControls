@@ -5,6 +5,11 @@ public class examplePlayer : MonoBehaviour {
 
     public GameObject projector;
 
+    /* The movement controls show at the bottom of the screen
+     * permanently, unless the fullscreen is being shown
+     * (both are toggled at the same time) */
+    ShowControls bottomDock = null;
+
     /* The fullscreen ShowControls is created when the scene starts,
      * and persists through being toggled on & off.  We initialize it
      * with the "Move" ability, and add additional things to it
@@ -24,7 +29,8 @@ public class examplePlayer : MonoBehaviour {
 
     private string movePopup = "Moves around.  Touch the powerups to get more abilities";
     private string moveFull = "Move the player thingy around.  The game pauses while the fullscreen controls are shown, due to its pauseOnDisplay=True";
-    private string jumpPopup = "You acquired the 'Jump' module!  Press 'Space' to jump!";
+    private string menuPopup = "View all the controls";
+    private string jumpPopup = "You acquired the 'Jump' module!  Press 'Space' to jump!  This has the default dock behavior, so it disappears automatically after 3 seconds.";
     private string jumpFull = "Jump.  Includes jumping mid-air.";
     private string diePopup = "You acquired the 'Die' module!  Left Click to Die.\nNote that this dock doesn't have a duration, and will stay around until you use the new ability.";
     private string dieFull = "Die.  Not the most useful ability.";
@@ -48,18 +54,27 @@ public class examplePlayer : MonoBehaviour {
          * but don't show it yet. */
         fullscreen = ShowControls.CreateFullscreen(new ControlItem(moveFull, CustomDisplay.wasd));
         fullscreen.destroyWhenDone = false;
+        fullscreen.gameObject.name = "showControls fullscreen";
 
-        // make a ShowControls to mention movement, and the powerups
-        ShowControls m = ShowControls.CreateDocked(new ControlItem(movePopup, CustomDisplay.wasd));
-        m.showDuration = 8;
-        m.position = ShowControlPosition.Bottom;
-        m.Show();
+        // make a ShowControls at the bottom to show movement &
+        // the controls screen.  It stays around forever.
+        bottomDock = ShowControls.CreateDocked(new[] {
+            new ControlItem(movePopup, CustomDisplay.wasd),
+            new ControlItem(menuPopup, KeyCode.Tab)});
+        bottomDock.size = ShowControlSize.Small;
+        bottomDock.showDuration = -1;
+        bottomDock.slideSpeed = -1;
+        bottomDock.position = ShowControlPosition.Bottom;
+        bottomDock.gameObject.name = "showControls bottomDock";
+        bottomDock.Show();
 	}
 	
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            bottomDock.Toggle();
             fullscreen.Toggle();
-
+        }
         projector.transform.position = transform.position + Vector3.up * 1.24f;
         projector.transform.rotation = Quaternion.LookRotation(-Vector3.up, transform.forward);
 

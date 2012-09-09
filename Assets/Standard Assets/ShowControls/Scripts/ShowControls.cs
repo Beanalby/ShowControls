@@ -7,6 +7,7 @@ public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, S
 
 public enum ShowControlPosition { Top, Bottom };
 public enum ShowControlStyle { Docked, FullScreen  };
+public enum ShowControlSize { Normal, Small };
 
 public class CustomDisplay
 {
@@ -227,8 +228,10 @@ public class ShowControls : MonoBehaviour {
     public float showDuration = 3;
     public bool hideLeftRightOnModifierKeys = true;
     public bool pauseOnDisplay = false;
+    public float slideSpeed = .25f;
 
     public ShowControlStyle style = ShowControlStyle.Docked;
+    public ShowControlSize _size = ShowControlSize.Normal;
     public KeyCode fullscreenClearKey = KeyCode.Tab;
     public string fullscreenTitle = "Controls";
     public int fullscreenTitleHeight = 100;
@@ -251,6 +254,7 @@ public class ShowControls : MonoBehaviour {
     public Texture plus;
 
     private const int texSize = 64;
+    private int verticalSize = texSize;
 
     // offsets in the gui custom styles
     private static int TITLE_STYLE = 0;
@@ -263,7 +267,7 @@ public class ShowControls : MonoBehaviour {
     private static int NUM_COLUMNS = 2;
 
     private bool doShow = false;
-    private float showStart = -1, showStop = -1, slideSpeed=.25f, savedTimeScale;
+    private float showStart = -1, showStop = -1, savedTimeScale;
 
     public static ShowControls CreateDocked(ControlItem control)
     {
@@ -430,7 +434,7 @@ public class ShowControls : MonoBehaviour {
             if (position == ShowControlPosition.Top)
                 y = 0 - slideOffset;
             else
-                y = Screen.height - texSize + slideOffset;
+                y = Screen.height - verticalSize + slideOffset;
         }
 
         ShowAllControls(x, y);
@@ -496,13 +500,23 @@ public class ShowControls : MonoBehaviour {
             texRect.x += texSize;
         }
         // put the text description in the leftover space
-        labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), texSize);
+        labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), verticalSize);
         GUI.Box(labelRect, control.description, gui.box);
     }
 
     private void ShowCustom(Rect texRect, CustomDisplay custom)
     {
-        GUI.DrawTexture(texRect, custom.customTexture);
+        if (size == ShowControlSize.Normal)
+        {
+            GUI.DrawTexture(texRect, custom.customTexture);
+        }
+        else
+        {
+            Rect groupRect = new Rect(texRect.x, texRect.y, texSize, verticalSize);
+            GUI.BeginGroup(groupRect);
+            GUI.DrawTexture(new Rect(0, -verticalSize / 2, texSize, texSize), custom.customTexture, ScaleMode.ScaleToFit);
+            GUI.EndGroup();
+        }
     }
 
     private void ShowKey(Rect texRect, KeyCode key)
@@ -530,8 +544,18 @@ public class ShowControls : MonoBehaviour {
             else
                 label = key.ToString();
         }
-        GUI.DrawTexture(texRect, tex);
-        Rect labelRect = new Rect(texRect.x, texRect.y, texSize, texSize - 15);
+        if (size == ShowControlSize.Normal)
+        {
+            GUI.DrawTexture(texRect, tex);
+        }
+        else
+        {
+            Rect groupRect = new Rect(texRect.x, texRect.y, texSize, verticalSize);
+            GUI.BeginGroup(groupRect);
+            GUI.DrawTexture(new Rect(0, -verticalSize/2, texSize, texSize), tex, ScaleMode.ScaleToFit);
+            GUI.EndGroup();
+        }
+        Rect labelRect = new Rect(texRect.x, texRect.y, texSize, verticalSize - 15);
         GUI.Label(labelRect, label, gui.customStyles[KEYBOARD_STYLE]);
     }
     private void ShowMouse(Rect texRect, MouseDirection direction, MouseButton button)
@@ -572,6 +596,19 @@ public class ShowControls : MonoBehaviour {
         }
     }
 
+    public ShowControlSize size
+    {
+        get { return _size; }
+        set
+        {
+            if (value == ShowControlSize.Normal)
+                verticalSize = texSize;
+            else
+                verticalSize = texSize / 2;
+            _size = value;
+            Debug.Log("Vertical set to " + verticalSize);
+        }
+    }
     public bool IsShown
     {
         get { return doShow; }
