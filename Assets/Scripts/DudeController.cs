@@ -14,6 +14,7 @@ public class DudeController : MonoBehaviour {
     private DudeWeaponController dwc;
 
     private int currentHealth;
+
 	void Start () {
         rc = GetComponent<RigidbodyController>();
         dwc = GetComponent<DudeWeaponController>();
@@ -25,6 +26,19 @@ public class DudeController : MonoBehaviour {
     {
         if (Input.GetButtonDown("Jump") && rc.IsGrounded())
             rc.doJump = true;
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            ShowControls.CreateDock(new ArrayList(new[] {
+                new ControlItem("oneKey", KeyCode.Insert),
+                new ControlItem("manyKey", new KeyCode[] { KeyCode.RightApple, KeyCode.LeftShift}),
+                new ControlItem("oneDir", MouseDirection.Horizontal),
+                new ControlItem("oneButton", MouseButton.LeftClick),
+                new ControlItem("COMBO!", KeyCode.LeftShift, MouseDirection.Both, MouseButton.RightClick),
+                new ControlItem("manyButton", MouseButton.BothClick),
+                new ControlItem("oneDir+oneButton", MouseButton.ScrollWheel),
+                new ControlItem("oneDir+manyButton", MouseDirection.Both, MouseButton.MiddleClick)
+            }));
+        }
     }
 
     void FixedUpdate ()

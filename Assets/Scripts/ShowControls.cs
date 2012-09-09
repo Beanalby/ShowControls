@@ -5,71 +5,74 @@ using System.Collections.Generic;
 public enum MouseDirection { None, Horizontal, Vertical, Both }
 public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, ScrollWheel };
 
-public class Control
+public enum ShowControlPosition { Top, Bottom };
+public enum ShowControlStyle { Dock, FullScreen  };
+
+public class ControlItem
 {
     public string description;
     public KeyCode[] keys = null;
     public MouseButton button = MouseButton.None;
     public MouseDirection direction = MouseDirection.None;
 
-    public Control(string description, KeyCode key)
+    public ControlItem(string description, KeyCode key)
     {
         this.description = description;
         this.keys = new KeyCode[1] { key };
     }
-    public Control(string description, KeyCode[] keys)
+    public ControlItem(string description, KeyCode[] keys)
     {
         this.description = description;
         this.keys = keys;
     }
-    public Control(string description, MouseDirection direction)
+    public ControlItem(string description, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
     }
-    public Control(string description, MouseButton button)
+    public ControlItem(string description, MouseButton button)
     {
         this.description = description;
         this.button = button;
     }
-    public Control(string description, MouseDirection direction, MouseButton button)
+    public ControlItem(string description, MouseDirection direction, MouseButton button)
     {
         this.description = description;
         this.direction = direction;
         this.button = button;
     }
-    public Control(string description, KeyCode key, MouseDirection direction)
+    public ControlItem(string description, KeyCode key, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
         this.keys = new KeyCode[1] { key };
     }
-    public Control(string description, KeyCode key, MouseButton button)
+    public ControlItem(string description, KeyCode key, MouseButton button)
     {
         this.description = description;
         this.button = button;
         this.keys = new KeyCode[1] { key };
     }
-    public Control(string description, KeyCode key, MouseDirection direction, MouseButton button)
+    public ControlItem(string description, KeyCode key, MouseDirection direction, MouseButton button)
     {
         this.description = description;
         this.direction = direction;
         this.button = button;
         this.keys = new KeyCode[1] { key };
     }
-    public Control(string description, KeyCode[] keys, MouseDirection direction)
+    public ControlItem(string description, KeyCode[] keys, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
         this.keys = keys;
     }
-    public Control(string description, KeyCode[] keys, MouseButton button)
+    public ControlItem(string description, KeyCode[] keys, MouseButton button)
     {
         this.description = description;
         this.button = button;
         this.keys = keys;
     }
-    public Control(string description, KeyCode[] keys, MouseDirection direction, MouseButton button)
+    public ControlItem(string description, KeyCode[] keys, MouseDirection direction, MouseButton button)
     {
         this.description = description;
         this.direction = direction;
@@ -97,12 +100,11 @@ public class Control
     }
 }
 
-[ExecuteInEditMode]
 public class ShowControls : MonoBehaviour {
 
     /* list of keys that should use the "big" key instead of the small.
      * Also has optional ToString() override to make some fit. */
-    public static Dictionary<KeyCode, string> BigKeys = new Dictionary<KeyCode, string>()
+    private  static Dictionary<KeyCode, string> BigKeys = new Dictionary<KeyCode, string>()
     {
         { KeyCode.Backspace, "Bksp" },
         { KeyCode.Delete, "Del" },
@@ -138,7 +140,7 @@ public class ShowControls : MonoBehaviour {
     };
 
     /* defines custom strings for some of the small keys */
-    public static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
+    private static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
     {
         { KeyCode.Keypad1, "N1" },
         { KeyCode.Keypad2, "N2" },
@@ -204,7 +206,12 @@ public class ShowControls : MonoBehaviour {
 
     public Texture keyBaseSmall;
     public Texture keyBaseLarge;
-    public GUIStyle keyStyle;
+    public GUIStyle keyStyle = new GUIStyle();
+
+    public ShowControlStyle style = ShowControlStyle.Dock;
+    public ControlItem ClearFullscreen = new ControlItem("", KeyCode.Space);
+
+    public ShowControlPosition position = ShowControlPosition.Top;
 
     public Texture mouseBase;
     public Texture mouseLeftClick;
@@ -219,14 +226,35 @@ public class ShowControls : MonoBehaviour {
     private const int texSize = 64;
 
     public ArrayList controls;
-    private bool doShow = false;
-    private float showStart = -1;
+    private bool doShow = false, doSlide = false;
+    private float showStart = -1, showStop = -1, slideSpeed=1;
+    public bool destroyWhenDone = false;
 
-	// Use this for initialization
-	void Start () {
-        keyStyle.alignment = TextAnchor.MiddleCenter;
-        keyStyle.fontStyle = FontStyle.Bold;
-	}
+    public static ShowControls CreateDock(ArrayList controls, bool showOnCreate=true)
+    {
+        GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
+        GameObject obj = (GameObject)Instantiate(prefab);
+        ShowControls sc = obj.GetComponent<ShowControls>();
+        sc.controls = controls;
+        sc.destroyWhenDone = true;
+        if (showOnCreate)
+            sc.Show();
+        return sc;
+    }
+
+    public static ShowControls CreateFullscreen(ArrayList controls, bool showOnCreate=true)
+    {
+        GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
+        GameObject obj = (GameObject)Instantiate(prefab);
+        ShowControls sc = obj.GetComponent<ShowControls>();
+        sc.controls = controls;
+        sc.style = ShowControlStyle.FullScreen;
+        sc.showDuration = -1;
+        sc.destroyWhenDone = true;
+        if (showOnCreate)
+            sc.Show();
+        return sc;
+    }
 
     public void Show()
     {
@@ -234,25 +262,47 @@ public class ShowControls : MonoBehaviour {
         showStart = Time.time;
     }
 
+    public void Hide()
+    {
+        if (doSlide)
+            showStop = Time.time;
+        else
+        {
+            if (destroyWhenDone)
+                Destroy(gameObject);
+        }
+    }
+
     public void OnGUI()
+    {
+        if (doShow)
+        {
+            if (showDuration != -1 && Time.time > showStart + showDuration)
+            {
+                if (destroyWhenDone)
+                    Destroy(gameObject);
+                else
+                    doShow = false;
+            }
+            else
+                ShowAllControls();
+        }
+    }
+
+    private void ShowAllControls()
     {
         if (gui != null)
             GUI.skin = gui;
-        controls = new ArrayList(new[] {
-            new Control("oneKey", KeyCode.Insert),
-            new Control("manyKey", new KeyCode[] { KeyCode.RightApple, KeyCode.LeftShift}),
-            new Control("oneDir", MouseDirection.Horizontal),
-            new Control("oneButton", MouseButton.LeftClick),
-            new Control("COMBO!", KeyCode.LeftShift, MouseDirection.Both, MouseButton.RightClick),
-            new Control("manyButton", MouseButton.BothClick),
-            new Control("oneDir+oneButton", MouseButton.ScrollWheel),
-            new Control("oneDir+manyButton", MouseDirection.Both, MouseButton.MiddleClick)
-        });
 
         bool shiftRight = false;
-        int x =0, y = 0;
+        int x=0, y;
 
-        foreach (Control control in controls)
+        if (position == ShowControlPosition.Top)
+            y = 0;
+        else
+            y = Screen.height - texSize;
+
+        foreach (ControlItem control in controls)
         {
             if (shiftRight)
                 x = Screen.width / 2;
@@ -263,7 +313,10 @@ public class ShowControls : MonoBehaviour {
 
             if (shiftRight)
             {
-                y += 80;
+                if (position == ShowControlPosition.Top)
+                    y += texSize;
+                else
+                    y -= texSize;
                 shiftRight = false;
             }
             else
@@ -272,7 +325,7 @@ public class ShowControls : MonoBehaviour {
             }
         }
     }
-    private void ShowControl(Control control, int x, int y)
+    private void ShowControl(ControlItem control, int x, int y)
     {
         Rect texRect = new Rect(x, y, texSize, texSize);
         Rect labelRect;
