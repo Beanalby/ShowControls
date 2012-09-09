@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public enum MouseDirection { None, Horizontal, Vertical, Both }
-public enum MouseButton { None, LeftClick, RightClick, MiddleClick, WheelUp, WheelDown };
+public enum MouseButton { None, LeftClick, RightClick, MiddleClick, ScrollWheel };
 
 public class Control
 {
@@ -186,13 +186,13 @@ public class ShowControls : MonoBehaviour {
     public GUIStyle keyStyle;
 
     public Texture mouseBase;
-    public Texture mouseOutline;
     public Texture mouseLeftClick;
     public Texture mouseMiddleClick;
     public Texture mouseRightClick;
     public Texture mouseWheel;
     public Texture mouseHorizontal;
     public Texture mouseVertical;
+    public Texture mouseHorizontalAndVertical;
 
     private const int texSize = 64;
 
@@ -216,7 +216,7 @@ public class ShowControls : MonoBehaviour {
     {
         if (gui != null)
             GUI.skin = gui;
-        Control mega = new Control("COMBO!", MouseButton.LeftClick);
+        Control mega = new Control("COMBO!", MouseButton.RightClick);
         mega.keys = new KeyCode[] { KeyCode.LeftApple };
         controls = new ArrayList(new[] {
             new Control("oneKey", KeyCode.Insert),
@@ -225,7 +225,7 @@ public class ShowControls : MonoBehaviour {
             new Control("oneButton", MouseButton.LeftClick),
             mega,
             new Control("manyButton", new MouseButton[] { MouseButton.LeftClick, MouseButton.RightClick }),
-            new Control("oneDir+oneButton", MouseDirection.Vertical, MouseButton.MiddleClick),
+            new Control("oneDir+oneButton", MouseButton.ScrollWheel),
             new Control("oneDir+manyButton", MouseDirection.Both, new MouseButton[] { MouseButton.LeftClick, MouseButton.RightClick })
         });
 
@@ -304,9 +304,7 @@ public class ShowControls : MonoBehaviour {
                             GUI.DrawTexture(texRect, mouseRightClick); break;
                         case MouseButton.MiddleClick:
                             GUI.DrawTexture(texRect, mouseWheel); break;
-                        case MouseButton.WheelDown:
-                            GUI.DrawTexture(texRect, mouseWheel); break;
-                        case MouseButton.WheelUp:
+                        case MouseButton.ScrollWheel:
                             GUI.DrawTexture(texRect, mouseWheel); break;
                         default:
                             Debug.LogError("Unsupported MouseButton " + button);
@@ -323,13 +321,11 @@ public class ShowControls : MonoBehaviour {
                 case MouseDirection.Vertical:
                     GUI.DrawTexture(texRect, mouseVertical); break;
                 case MouseDirection.Both:
-                    GUI.DrawTexture(texRect, mouseHorizontal);
-                    GUI.DrawTexture(texRect, mouseVertical); break;
+                    GUI.DrawTexture(texRect, mouseHorizontalAndVertical); break;
                 default:
                     Debug.LogError("Unsupported MouseDirection " + control.direction);
                     return;
             }
-            GUI.DrawTexture(texRect, mouseOutline);
             texRect.x += texSize;
             widgetsShown++;
         }
