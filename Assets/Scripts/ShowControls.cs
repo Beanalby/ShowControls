@@ -175,6 +175,7 @@ public class ShowControls : MonoBehaviour {
     public Texture mouseHorizontal;
     public Texture mouseVertical;
     public Texture mouseHorizontalAndVertical;
+    public Texture plus;
 
     private const int texSize = 64;
 
@@ -198,8 +199,8 @@ public class ShowControls : MonoBehaviour {
     {
         if (gui != null)
             GUI.skin = gui;
-        Control mega = new Control("COMBO!", MouseButton.RightClick);
-        mega.keys = new KeyCode[] { KeyCode.LeftApple };
+        Control mega = new Control("COMBO!", MouseDirection.Both, MouseButton.RightClick);
+        mega.keys = new KeyCode[] { KeyCode.LeftShift };
         controls = new ArrayList(new[] {
             new Control("oneKey", KeyCode.Insert),
             new Control("manyKey", new KeyCode[] { KeyCode.RightApple, KeyCode.LeftShift}),
@@ -236,7 +237,6 @@ public class ShowControls : MonoBehaviour {
     }
     private void ShowControl(Control control, int x, int y)
     {
-        int widgetsShown = 0;
         Rect texRect = new Rect(x, y, texSize, texSize);
         Rect labelRect;
 
@@ -266,13 +266,19 @@ public class ShowControls : MonoBehaviour {
                 labelRect = new Rect(texRect.x, texRect.y, texSize, texSize - 15);
                 GUI.Label(labelRect, label, keyStyle);
                 texRect.x += texSize;
-                widgetsShown++;
             }
         } 
 
         // draw the mouse, if necessary
         if (control.button != MouseButton.None || control.direction != MouseDirection.None)
         {
+            // if we already showed keys, also show a plus between keys & mouse
+            if (control.keys != null)
+            {
+                Rect plusRect = new Rect(texRect.x, texRect.y + (texSize *.375f), texSize / 4, texSize / 4);
+                GUI.DrawTexture(plusRect, plus);
+                texRect.x += texSize / 4;
+            }
             GUI.DrawTexture(texRect, mouseBase);
             switch (control.button)
             {
@@ -308,12 +314,9 @@ public class ShowControls : MonoBehaviour {
                     return;
             }
             texRect.x += texSize;
-            widgetsShown++;
         }
-
         // put the text description in the leftover space
-        int offset = (widgetsShown * texSize);
-        labelRect = new Rect(x + offset, y, (Screen.width / 2) - offset, texSize);
+        labelRect = new Rect(texRect.x, y, (Screen.width / 2) - (texRect.x - x), texSize);
         GUI.Box(labelRect, control.ToString());
     }
 }
