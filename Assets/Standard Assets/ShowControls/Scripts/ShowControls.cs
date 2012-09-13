@@ -606,7 +606,6 @@ public class ShowControls : MonoBehaviour {
             else
                 verticalSize = texSize / 2;
             _size = value;
-            Debug.Log("Vertical set to " + verticalSize);
         }
     }
     public bool IsShown

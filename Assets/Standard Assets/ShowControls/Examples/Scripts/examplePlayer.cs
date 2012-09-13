@@ -27,9 +27,9 @@ public class examplePlayer : MonoBehaviour {
      * duration is done, so we don't need to keep it around
      * in any variable. */
 
-    private string movePopup = "Moves around.  Touch the powerups to get more abilities";
+    private string movePopup = "Moves around.  Touch the powerups to get more abilities.";
     private string moveFull = "Move the player thingy around.  The game pauses while the fullscreen controls are shown, due to its pauseOnDisplay=True";
-    private string menuPopup = "View all the controls";
+    private string menuPopup = "View all the controls.  This dock is ShowControlSize.Small";
     private string jumpPopup = "You acquired the 'Jump' module!  Press 'Space' to jump!  This has the default dock behavior, so it disappears automatically after 3 seconds.";
     private string jumpFull = "Jump.  Includes jumping mid-air.";
     private string diePopup = "You acquired the 'Die' module!  Left Click to Die.\nNote that this dock doesn't have a duration, and will stay around until you use the new ability.";
@@ -54,7 +54,6 @@ public class examplePlayer : MonoBehaviour {
          * but don't show it yet. */
         fullscreen = ShowControls.CreateFullscreen(new ControlItem(moveFull, CustomDisplay.wasd));
         fullscreen.destroyWhenDone = false;
-        fullscreen.gameObject.name = "showControls fullscreen";
 
         // make a ShowControls at the bottom to show movement &
         // the controls screen.  It stays around forever.
@@ -65,13 +64,14 @@ public class examplePlayer : MonoBehaviour {
         bottomDock.showDuration = -1;
         bottomDock.slideSpeed = -1;
         bottomDock.position = ShowControlPosition.Bottom;
-        bottomDock.gameObject.name = "showControls bottomDock";
         bottomDock.Show();
 	}
 	
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
+            // if we're showing the fullscreen, don't show the bottom dock,
+            // & vice versa
             bottomDock.Toggle();
             fullscreen.Toggle();
         }
@@ -157,13 +157,16 @@ public class examplePlayer : MonoBehaviour {
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.gameObject.layer == 9)
+        if (hit.gameObject.layer == 9 && hit.normal == Vector3.up)
             velocity.y = 0;
-        examplePowerup p = hit.gameObject.GetComponent<examplePowerup>();
-        if (p != null)
+        else
         {
-            AddPowerup(p.powerupName);
-            Destroy(hit.gameObject);
+            examplePowerup p = hit.gameObject.GetComponent<examplePowerup>();
+            if (p != null)
+            {
+                AddPowerup(p.powerupName);
+                Destroy(hit.gameObject);
+            }
         }
     }
 }
