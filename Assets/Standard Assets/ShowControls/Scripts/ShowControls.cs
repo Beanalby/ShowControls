@@ -36,8 +36,23 @@ public class ControlItem
         { KeyCode.Pause, null },
         { KeyCode.Escape, "Esc" },
         { KeyCode.Space, null },
-        { KeyCode.Keypad0, "N0" }, /* doesn't NEED to be wide, but it is IRL */
-        { KeyCode.KeypadEnter, "NEnter" },
+        { KeyCode.Keypad0, "NUM0" },
+        { KeyCode.Keypad1, "NUM1" },
+        { KeyCode.Keypad2, "NUM2" },
+        { KeyCode.Keypad3, "NUM3" },
+        { KeyCode.Keypad4, "NUM4" },
+        { KeyCode.Keypad5, "NUM5" },
+        { KeyCode.Keypad6, "NUM6" },
+        { KeyCode.Keypad7, "NUM7" },
+        { KeyCode.Keypad8, "NUM8" },
+        { KeyCode.Keypad9, "NUM9" },
+        { KeyCode.KeypadPeriod, "NUM." },
+        { KeyCode.KeypadDivide, "NUM/" },
+        { KeyCode.KeypadMultiply, "NUM*" },
+        { KeyCode.KeypadMinus, "NUM-" },
+        { KeyCode.KeypadPlus, "NUM+" },
+        { KeyCode.KeypadEquals, "NUM=" },
+        { KeyCode.KeypadEnter, "NUMEn" },
         { KeyCode.Home, null },
         { KeyCode.End, null },
         { KeyCode.PageUp, "PgUp" },
@@ -64,21 +79,6 @@ public class ControlItem
     /* defines custom strings for some of the small keys */
     public static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
     {
-        { KeyCode.Keypad1, "N1" },
-        { KeyCode.Keypad2, "N2" },
-        { KeyCode.Keypad3, "N3" },
-        { KeyCode.Keypad4, "N4" },
-        { KeyCode.Keypad5, "N5" },
-        { KeyCode.Keypad6, "N6" },
-        { KeyCode.Keypad7, "N7" },
-        { KeyCode.Keypad8, "N8" },
-        { KeyCode.Keypad9, "N9" },
-        { KeyCode.KeypadPeriod, "N." },
-        { KeyCode.KeypadDivide, "N/" },
-        { KeyCode.KeypadMultiply, "N*" },
-        { KeyCode.KeypadMinus, "N-" },
-        { KeyCode.KeypadPlus, "N+" },
-        { KeyCode.KeypadEquals, "N=" },
         { KeyCode.UpArrow, "\u2191" },
         { KeyCode.DownArrow, "\u2193" },
         { KeyCode.LeftArrow, "\u2190" },
@@ -229,6 +229,7 @@ public class ShowControls : MonoBehaviour {
     public bool hideLeftRightOnModifierKeys = true;
     public bool pauseOnDisplay = false;
     public float slideSpeed = .25f;
+    public int offsetX = 0, offsetY = 0;
 
     public ShowControlStyle style = ShowControlStyle.Docked;
     public ShowControlSize _size = ShowControlSize.Normal;
@@ -299,13 +300,12 @@ public class ShowControls : MonoBehaviour {
     }
     public void Show()
     {
-        if (doShow)
-        {
-            Debug.LogError(name + " already showing, ignoring second show request.");
+        if (IsShown)
             return;
-        }
+
         doShow = true;
         showStart = Time.time;
+        showStop = -1;
         if (pauseOnDisplay)
         {
             savedTimeScale = Time.timeScale;
@@ -325,16 +325,15 @@ public class ShowControls : MonoBehaviour {
      * we keep showing through the slide. */
     public void Hide()
     {
+        if (!IsShown || showStop != -1)
+            return;
         if (style == ShowControlStyle.FullScreen || slideSpeed == -1)
         {
             Finished();
             return;
         }
         if (showStop != -1)
-        {
-            Debug.LogError("Already hiding, ignoring second hide request.");
             return;
-        }
         showStop = Time.time;
     }
 
@@ -437,27 +436,28 @@ public class ShowControls : MonoBehaviour {
                 y = Screen.height - verticalSize + slideOffset;
         }
 
-        ShowAllControls(x, y);
+        ShowAllControls(x + offsetX, y + offsetY);
     }
 
     private void ShowAllControls(int x, int y)
     {
+        int tmpX;
         bool shiftRight = false;
         foreach (ControlItem control in controls)
         {
             if (shiftRight)
-                x = Screen.width / 2;
+                tmpX = Screen.width / 2 + x;
             else
-                x = 0;
+                tmpX = x;
 
-            ShowControl(control, x, y);
+            ShowControl(control, tmpX, y);
 
             if (shiftRight)
             {
                 if (position == ShowControlPosition.Top)
-                    y += texSize+5;
+                    y += verticalSize + 5;
                 else
-                    y -= texSize+5;
+                    y -= verticalSize + 5;
                 shiftRight = false;
             }
             else
@@ -611,5 +611,18 @@ public class ShowControls : MonoBehaviour {
     public bool IsShown
     {
         get { return doShow; }
+        set
+        {
+            if (value)
+            {
+                if (!IsShown)
+                    Show();
+            }
+            else
+            {
+                if (IsShown)
+                    Hide();
+            }
+        }
     }
 }

@@ -28,11 +28,11 @@ public class examplePlayer : MonoBehaviour {
      * in any variable. */
 
     private string movePopup = "Moves around.  Touch the powerups to get more abilities.";
-    private string moveFull = "Move the player thingy around.  The game pauses while the fullscreen controls are shown, due to its pauseOnDisplay=True";
+    private string moveFull = "Move the player thingy around.  The game pauses while the fullscreen controls are shown, due to its pauseOnDisplay=True\nMore things will be added here as you get them";
     private string menuPopup = "View all the controls.  This dock is ShowControlSize.Small";
-    private string jumpPopup = "You acquired the 'Jump' module!  Press 'Space' to jump!  This has the default dock behavior, so it disappears automatically after 3 seconds.";
+    private string jumpPopup = "You acquired the 'Jump'!  This has the default dock behavior, so it disappears automatically after 3 seconds.";
     private string jumpFull = "Jump.  Includes jumping mid-air.";
-    private string diePopup = "You acquired the 'Die' module!  Left Click to Die.\nNote that this dock doesn't have a duration, and will stay around until you use the new ability.";
+    private string diePopup = "You acquired the 'Die' module!\nNote that this dock has duration=-1, so it will stay until you Die.  Good way to make sure users see & try the new stuff.";
     private string dieFull = "Die.  Not the most useful ability.";
 
     private bool hasJump = false, hasDie = false, doJump = false;
@@ -53,7 +53,10 @@ public class examplePlayer : MonoBehaviour {
         /* Create the fullscreen ShowControls with a control,
          * but don't show it yet. */
         fullscreen = ShowControls.CreateFullscreen(new ControlItem(moveFull, CustomDisplay.wasd));
-        fullscreen.destroyWhenDone = false;
+        fullscreen.fullscreenMessageLeft = "Mash ";
+        fullscreen.fullscreenClearKey = KeyCode.Tab;
+        fullscreen.fullscreenMessageRight = "to keep rockin'";
+
 
         // make a ShowControls at the bottom to show movement &
         // the controls screen.  It stays around forever.
