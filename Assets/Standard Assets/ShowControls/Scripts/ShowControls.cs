@@ -2,13 +2,38 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Allows specifying mouse movement in a ControlItem
+/// </summary>
 public enum MouseDirection { None, Horizontal, Vertical, Both }
+/// <summary>
+/// Allows specifying mouse button clicks or wheel movement in a ControlItem
+/// </summary>
 public enum MouseButton { None, LeftClick, RightClick, BothClick, MiddleClick, ScrollWheel };
 
+/// <summary>
+/// Defines the overall style of the ShowControls.  Docked appears at the top or bottom,
+/// FullScreen takes up the entire screen with a shaded background.
+/// </summary>
+public enum ShowControlStyle { Docked, FullScreen };
+
+/// <summary>
+/// Defines whether the docked ShowControls should start at the top or
+/// the bottom of the screen.  Has no effect on Fullscreen ShowControls.
+/// </summary>
 public enum ShowControlPosition { Top, Bottom };
-public enum ShowControlStyle { Docked, FullScreen  };
+
+/// <summary>
+/// Defines the size of the docked ShowControls.  Small are half height,
+/// allowing for more unobtrusive permanent displays.
+/// Has no effect on Fullscreen ShowControls.
+/// </summary>
 public enum ShowControlSize { Normal, Small };
 
+/// <summary>
+/// Provides a way to create a completely custom display for your own
+/// ControlItem.  It is used internally for the wasd/arrow key clusters.
+/// </summary>
 public class CustomDisplay
 {
     public static CustomDisplay esdf = new CustomDisplay((Texture)Resources.Load("Textures/showControlsSpecialESDF", typeof(Texture)));
@@ -22,10 +47,21 @@ public class CustomDisplay
     }
 }
 
+/// <summary>
+/// Defines an individual control that is used by ShowControls.
+/// It takes some combination of keyboard, MouseMovement, and MouseButton to
+/// describe how it is invoked, and a text description that explains what the
+/// control is.  Multiple constructors are available to ease creation.
+/// 
+/// Usually ControlItems are only used when passing in to a static ShowControls
+/// creation method.
+/// </summary>
 public class ControlItem
 {
-    /* list of keys that should use the "big" key instead of the small.
-     * Also has optional ToString() override to make some fit. */
+    /// <summary>
+    /// A list of keys that should use the "big" key instead of the small.
+    /// Also has optional ToString() override to make some fit.
+    /// </summary>
     public static Dictionary<KeyCode, string> BigKeys = new Dictionary<KeyCode, string>()
     {
         { KeyCode.Backspace, "Bksp" },
@@ -76,7 +112,9 @@ public class ControlItem
         { KeyCode.Menu, null }
     };
 
-    /* defines custom strings for some of the small keys */
+    /// <summary>
+    /// Defines custom strings for some of the small keys
+    /// </summary>
     public static Dictionary<KeyCode, string> SmallKeys = new Dictionary<KeyCode, string>()
     {
         { KeyCode.UpArrow, "\u2191" },
@@ -122,50 +160,91 @@ public class ControlItem
         { KeyCode.BackQuote, "`" },
     };
 
+    /// <summary>
+    /// The text description for this control, shown to the right of whatever
+    /// key/mouse icons are needed.
+    /// </summary>
     public string description;
+
     public KeyCode[] keys = null;
     public MouseButton button = MouseButton.None;
     public MouseDirection direction = MouseDirection.None;
     public CustomDisplay custom = null;
 
+    /// <summary>
+    /// Creates a ControlItem invoked by a single keystroke.
+    /// <example><code>new ControlItem("Jump!", KeyCode.Space);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode key)
     {
         this.description = description;
         this.keys = new KeyCode[1] { key };
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by multiple keys.
+    /// <example><code>new ControlItem("Find", new[] { KeyCode.LeftControl, KeyCode.F });</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode[] keys)
     {
         this.description = description;
         this.keys = keys;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by moving the mouse.
+    /// <example><code>new ControlItem("Look around", MouseDirection.Both);</code></example>
+    /// </summary>
     public ControlItem(string description, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by clicking a mouse button or scrolling the wheel.
+    /// <example><code>new ControlItem("Fire your weapon", MouseButton.LeftClick);</code></example>
+    /// </summary>
     public ControlItem(string description, MouseButton button)
     {
         this.description = description;
         this.button = button;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by clicking & dragging.
+    /// 
+    /// <example><code>new ControlItem("Create a box selection", MouseDirection.Both, MouseButton.LeftClick);</code></example>
+    /// </summary>
     public ControlItem(string description, MouseDirection direction, MouseButton button)
     {
         this.description = description;
         this.direction = direction;
         this.button = button;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of keystroke &amp; mouse movement.
+    /// 
+    /// <example><code>new ControlItem("Look around while zoomed", KeyCode.LeftControl, MouseDirection.Both);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode key, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
         this.keys = new KeyCode[1] { key };
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of keystroke &amp; mouse button.
+    /// 
+    /// <example><code>new ControlItem("Invoke 'Open With...' in Windows", KeyCode.LeftShift, MouseButton.RightClick);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode key, MouseButton button)
     {
         this.description = description;
         this.button = button;
         this.keys = new KeyCode[1] { key };
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of keystroke &amp; mouse dragging.
+    /// 
+    /// <example><code>new ControlItem("Add a box selection", KeyCode.LeftShift, MouseDirection.Both, MouseButton.LeftClick);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode key, MouseDirection direction, MouseButton button)
     {
         this.description = description;
@@ -173,18 +252,33 @@ public class ControlItem
         this.button = button;
         this.keys = new KeyCode[1] { key };
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of multiple keystrokes &amp; mouse movement.
+    /// 
+    /// <example><code>new ControlItem("Look around while REALLY zoomed", new[] { KeyCode.LeftControl, KeyCode.LeftShift}, MouseDirection.Both);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode[] keys, MouseDirection direction)
     {
         this.description = description;
         this.direction = direction;
         this.keys = keys;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of multiple keystrokes &amp; mouse click.
+    /// 
+    /// <example><code>new ControlItem("Select an additional edge loop in Blender", new[] { KeyCode.LeftShift, KeyCode.LeftAlt }, MouseButton.LeftClick });</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode[] keys, MouseButton button)
     {
         this.description = description;
         this.button = button;
         this.keys = keys;
     }
+    /// <summary>
+    /// Creates a ControlItem invoked by a combination of multiple keystrokes &amp; mouse dragging.
+    /// 
+    /// <example><code>new ControlItem("Convoluted nondescript example", new[] { KeyCode.LeftControl, KeyCode.LeftShift}, MouseDirection.Both, MouseButton.MiddleClick);</code></example>
+    /// </summary>
     public ControlItem(string description, KeyCode[] keys, MouseDirection direction, MouseButton button)
     {
         this.description = description;
@@ -192,6 +286,11 @@ public class ControlItem
         this.button = button;
         this.keys = keys;
     }
+    /// <summary>
+    /// Creates a ControlItem that uses a custom display.
+    /// 
+    /// <example><code>new ControlItem("Move around", CustomDisplay.wasd);</code></example>
+    /// </summary>
     public ControlItem(string description, CustomDisplay custom)
     {
         this.description = description;
@@ -218,32 +317,139 @@ public class ControlItem
     }
 }
 
+/// <summary>
+/// The main class for creating & invoking the tools to
+/// show controls to the user.  Rather than a public constructor, use
+/// CreateDocked or CreateFullScreen to create a ShowControls item.
+/// Supply any number of ControlItems to those functions to define the
+/// controls you want to show.
+/// 
+/// Show, Hide, and Toggle are used to control the actual display
+/// </summary>
 public class ShowControls : MonoBehaviour {
 
+    /// <summary>
+    /// The GUISkin that is used when displaying controls.  Box is used
+    /// for the text description, and two customStyles are also used.
+    /// The first is for the top & bottom title of the fullscreen display,
+    /// the second for the face of key widgets.
+    /// </summary>
     public GUISkin gui;
 
+    /// <summary>
+    /// The set of controls that will be shown.  It's normally populated
+    /// when you CreateDocked or CreateFullScreen, but you can work with it
+    /// manually to dynamically add/remove additional ControlItems as needed.
+    /// </summary>
     public ArrayList controls;
 
+    /// <summary>
+    /// If <c>true</c>, the GameObject this ShowControls is attached to
+    /// will be automatically destroyed when it's done being shown.
+    /// Used for "one shot" popup displays.
+    /// </summary>
     public bool destroyWhenDone = true;
+
+    /// <summary>
+    /// For docked controls, defines how long the controls should be shown.
+    /// Set to -1 for infinite duration, which will only finish when
+    /// <c>Hide</c> or <c>Toggle</c> is invoked.
+    /// Unused for Fullscreen controls.
+    /// </summary>
     public float showDuration = 3;
+    /// <summary>
+    /// Technically keys like Left Shift & Right Shift are differnt keys.
+    /// If this is <c>true</c>, the Left/Right parts will be hidden
+    /// and it will just show "Shift".
+    /// </summary>
     public bool hideLeftRightOnModifierKeys = true;
+    /// <summary>
+    /// Pauses the game when the Fullscreen controls are displayed.
+    /// </summary>
+    /// <remarks>
+    /// The pausing is accomplished by setting <c>Time.timeScale=0</c>.
+    /// <c>FixedUpdate</c> functions will not be called, but <c>Update</c>
+    /// functions WILL, so your code may need to test <c>(Time.TimeScale==0)</c>
+    /// to detect whether the game is paused and suspend its actions.
+    /// </remarks>
     public bool pauseOnDisplay = false;
+    /// <summary>
+    /// Defines how long the docked controls take to slide in & out.
+    /// Set to 0 to have no sliding.  Unused with Fullscreen controls.
+    /// </summary>
     public float slideSpeed = .25f;
+
+    /// <summary>
+    /// Defines an x & y offset for the docked controls.  It's often useful
+    /// to create a single right-justified control by using
+    /// <c>xOffset=Screen.width/2</c>.
+    /// Unused with Fullscreen controls.
+    /// </summary>
     public int offsetX = 0, offsetY = 0;
 
+    /// <summary>
+    /// Specifies the overall style of the ShowControls.  Docked appears at the top or bottom,
+    /// FullScreen takes up the entire screen with a shaded background.
+    /// </summary>
     public ShowControlStyle style = ShowControlStyle.Docked;
-    public ShowControlSize _size = ShowControlSize.Normal;
-    public KeyCode fullscreenClearKey = KeyCode.Tab;
-    public string fullscreenTitle = "Controls";
-    public int fullscreenTitleHeight = 100;
-    public string fullscreenMessageLeft = "Press ";
-    public string fullscreenMessageRight = " to continue";
-
+    /// <summary>
+    /// Specifies whether the docked ShowControls should start at the top or
+    /// the bottom of the screen.  Has no effect on Fullscreen ShowControls.
+    /// </summary>
     public ShowControlPosition position = ShowControlPosition.Top;
+
+    private ShowControlSize _size = ShowControlSize.Normal;
+    /// <summary>
+    /// Specifies the size of the docked ShowControls.  Small are half height,
+    /// allowing for more unobtrusive permanent displays.
+    /// Has no effect on Fullscreen ShowControls.
+    /// </summary>
+    public ShowControlSize size
+    {
+        get { return _size; }
+        set
+        {
+            if (value == ShowControlSize.Normal)
+                verticalSize = texSize;
+            else
+                verticalSize = texSize / 2;
+            _size = value;
+        }
+    }
+
+    /// <summary>
+    /// Defines the key shown in the "Press X to continue" message at the bottom.
+    /// </summary>
+    /// <remarks>
+    /// This doesn't perform any of the showing or hiding actions, that will need
+    /// done by your code.  This only controls what key is displayed on the
+    /// screen.
+    /// </remarks>
+    public KeyCode fullscreenClearKey = KeyCode.Tab;
+
+    /// <summary>
+    /// Defines the message that is shown at the top of the
+    /// Fullscreen ShowControls.
+    /// </summary>
+    public string fullscreenTitle = "Controls";
+    /// <summary>
+    /// Defines the distance between the top of the screen and the start of the
+    /// ControlItem widgets in a Fullscreen ShowControls.
+    /// </summary>
+    public int fullscreenTitleHeight = 100;
+    /// <summary>
+    /// Defines the text to the left of the fullscreen clear key in the
+    /// "Press X to continue" message at the bottom of Fullscreen Controls.
+    /// </summary>
+    public string fullscreenMessageLeft = "Press ";
+    /// <summary>
+    /// Defines the text to the right of the fullscreen clear key in the
+    /// "Press X to continue" message at the bottom of Fullscreen Controls.
+    /// </summary>
+    public string fullscreenMessageRight = " to continue";
 
     public Texture keyBaseSmall;
     public Texture keyBaseLarge;
-
     public Texture mouseBase;
     public Texture mouseLeftClick;
     public Texture mouseMiddleClick;
@@ -255,25 +461,50 @@ public class ShowControls : MonoBehaviour {
     public Texture plus;
 
     private const int texSize = 64;
+
+    /// <summary>
+    /// The vertical size/offset actually being used, which may be
+    /// modified if size=ShowControlSize.small
+    /// </summary>
     private int verticalSize = texSize;
 
-    // offsets in the gui custom styles
+    /// <summary>
+    /// offsets in the array of custom styles in the GUISkin
+    /// </summary>
     private static int TITLE_STYLE = 0;
     private static int KEYBOARD_STYLE = 1;
-    // created dynamically based off title style
+    /// <summary>
+    /// Created dynamically based off title style
+    /// </summary>
     private GUIStyle fullscreenBottomLeftStyle;
     private GUIStyle fullscreenBottomRightStyle;
 
-    // make this configurable someday
+    /// <summary>
+    /// make this configurable someday?
+    /// </summary>
     private static int NUM_COLUMNS = 2;
 
+    /// <summary>
+    /// Internal tracking of whether we're showing at all.  controls
+    /// that have had Hide() will still have doShow=true if they're
+    /// still sliding.
+    /// </summary>
     private bool doShow = false;
+    /// <summary>
+    /// tracking of when various things start & stop
+    /// </summary>
     private float showStart = -1, showStop = -1, savedTimeScale;
 
+    /// <summary>
+    /// Creates a new ShowControls for a single control that will be docked.
+    /// </summary>
     public static ShowControls CreateDocked(ControlItem control)
     {
         return CreateDocked(new[] { control });
     }
+    /// <summary>
+    /// Creates a new ShowControls for a multiple controls that will be docked.
+    /// </summary>
     public static ShowControls CreateDocked(ControlItem[] controls)
     {
         GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
@@ -282,10 +513,16 @@ public class ShowControls : MonoBehaviour {
         sc.controls = new ArrayList(controls);
         return sc;
     }
+    /// <summary>
+    /// Creates a new ShowControls for a single control that will shown fullscreen.
+    /// </summary>
     public static ShowControls CreateFullscreen(ControlItem item)
     {
         return CreateFullscreen(new[] { item });
     }
+    /// <summary>
+    /// Creates a new ShowControls for a multiple controls that will shown fullscreen.
+    /// </summary>
     public static ShowControls CreateFullscreen(ControlItem[] controls)
     {
         GameObject prefab = (GameObject)Resources.Load("DefaultShowControls");
@@ -298,6 +535,11 @@ public class ShowControls : MonoBehaviour {
         sc.pauseOnDisplay = true;
         return sc;
     }
+
+    /// <summary>
+    /// Causes this ShowControls to display.  If this style is ShowControlsStyle.Docked
+    /// and duration!=0, it will begin sliding.  Has no effect if this is already displaying.
+    /// </summary>
     public void Show()
     {
         if (IsShown)
@@ -320,9 +562,10 @@ public class ShowControls : MonoBehaviour {
             fullscreenBottomRightStyle.alignment = TextAnchor.MiddleLeft;
         }
     }
-    /* Hide() indicates we want to stop showing.  Note that this doesn't
-     * necessarily mean we stop showing immediately; if we're sliding,
-     * we keep showing through the slide. */
+    /// <summary>
+    /// Hide() indicates we want to stop showing.  If this style is ShowControlsStyle.Docked
+    /// and duration!=0, it will begin sliding.  Has no effect if this is already hiding / hidden.
+    /// </summary>
     public void Hide()
     {
         if (!IsShown || showStop != -1)
@@ -337,9 +580,22 @@ public class ShowControls : MonoBehaviour {
         showStop = Time.time;
     }
 
-    /* Finished() is called when we are really done displaying,
-     * either because we're instantaneously toggling off, or because
-     * we're sliding and have finished the slide. */
+    /// <summary>
+    /// Shows the control if it's hidden, or hides the control if it's shown.
+    /// </summary>
+    public void Toggle()
+    {
+        if (doShow && showStop == -1)
+            Hide();
+        else
+            Show();
+    }
+
+    /// <summary>
+    /// Finished() is called when we are really done displaying,
+    /// either because we're instantaneously toggling off, or because
+    /// we're sliding and have finished the slide.
+    /// </summary>
     private void Finished()
     {
         doShow = false;
@@ -352,6 +608,9 @@ public class ShowControls : MonoBehaviour {
             Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Invoked by Unity3D to actually display the controls.
+    /// </summary>
     public void OnGUI()
     {
         if (!doShow)
@@ -377,14 +636,6 @@ public class ShowControls : MonoBehaviour {
 
         // normal case, just display.
         DisplayControls();
-    }
-
-    public void Toggle()
-    {
-        if (doShow && showStop == -1)
-            Hide();
-        else
-            Show();
     }
 
     private void DisplayControls()
@@ -596,18 +847,11 @@ public class ShowControls : MonoBehaviour {
         }
     }
 
-    public ShowControlSize size
-    {
-        get { return _size; }
-        set
-        {
-            if (value == ShowControlSize.Normal)
-                verticalSize = texSize;
-            else
-                verticalSize = texSize / 2;
-            _size = value;
-        }
-    }
+    /// <summary>
+    /// Indicates whether or not the controls are currently shown.
+    /// Setting to true is the same as calling Show(), setting false
+    /// is the same as calling Hide().
+    /// </summary>
     public bool IsShown
     {
         get { return doShow; }
