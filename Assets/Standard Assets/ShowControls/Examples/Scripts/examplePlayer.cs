@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class examplePlayer : MonoBehaviour {
+public class examplePlayer : MonoBehaviour
+{
 
     public GameObject projector;
 
@@ -46,7 +47,8 @@ public class examplePlayer : MonoBehaviour {
     private Vector3 startPoint;
     private CharacterController cc;
 
-	void Start () {
+	void Start ()
+    {
         startPoint = transform.position;
         cc = GetComponent<CharacterController>();
 
@@ -56,7 +58,6 @@ public class examplePlayer : MonoBehaviour {
         fullscreen.fullscreenMessageLeft = "Mash ";
         fullscreen.fullscreenClearKey = KeyCode.Tab;
         fullscreen.fullscreenMessageRight = "to keep rockin'";
-
 
         // make a ShowControls at the bottom to show movement &
         // the controls screen.  It stays around forever.
@@ -70,7 +71,8 @@ public class examplePlayer : MonoBehaviour {
         bottomDock.Show();
 	}
 	
-	void Update () {
+	void Update ()
+    {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             // if we're showing the fullscreen, don't show the bottom dock,

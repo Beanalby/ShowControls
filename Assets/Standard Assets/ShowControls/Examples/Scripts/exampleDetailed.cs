@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class exampleDetailed : MonoBehaviour {
+public class exampleDetailed : MonoBehaviour
+{
 
     private ShowControls fsTop, fsBlender, fsUnity, bottomPerm, bottomTmp = null;
 
@@ -18,9 +19,10 @@ public class exampleDetailed : MonoBehaviour {
     private static string descFs = "Toggle fullscreen for the current view";
     private static string descBottomTemp = "This docked control slides (we don't remove slideSpeed), has a long duration (lots of text!), and automatically destroys itself when done - we create if if it's null, and don't explicitly destroy it.";
     private static string descBottomPerm = "This docked control has an infinite duration, and will stay until you hit Ctrl to remove it.  It also shows LEFT Ctrl, as opposed to the Unity/Blender screens which just show \"Ctrl\"";
-    // Use this for initialization
-	void Start () {
 
+    void Start ()
+    {
+        /* fsBlender is the fullscreen blender controls, which we show with Tab */
         fsBlender = ShowControls.CreateFullscreen(new[] {
             new ControlItem(descOrbit, MouseDirection.Both, MouseButton.MiddleClick),
             new ControlItem(descPan, KeyCode.LeftShift, MouseDirection.Both, MouseButton.MiddleClick),
@@ -32,6 +34,7 @@ public class exampleDetailed : MonoBehaviour {
         fsBlender.fullscreenTitle = "Handy Blender Controls";
         fsBlender.fullscreenClearKey = blenderKey;
 
+        /* fsUnity is the fullscreen unity controls, which we show with Z */
         fsUnity = ShowControls.CreateFullscreen(new[] {
             new ControlItem(descOrbit, KeyCode.LeftAlt, MouseDirection.Both, MouseButton.LeftClick),
             new ControlItem(descPan, KeyCode.LeftAlt, MouseDirection.Both, MouseButton.MiddleClick),
@@ -43,6 +46,8 @@ public class exampleDetailed : MonoBehaviour {
         fsUnity.fullscreenTitle = "Common controls for Unity";
         fsUnity.fullscreenClearKey = unityKey;
 
+        /* fsTop is the top docked controls that always display, unless either
+         * fullscreen display is showing. */
         fsTop = ShowControls.CreateDocked(new[] {
             new ControlItem("Show Blender controls", fsBlender.fullscreenClearKey),
             new ControlItem("Show Unity controls", fsUnity.fullscreenClearKey),
@@ -54,6 +59,8 @@ public class exampleDetailed : MonoBehaviour {
         fsTop.slideSpeed = -1;
         fsTop.Show();
 
+        /* the bottom controls are created now, but aren't displayed until
+         * we press the proper key */
         bottomPerm = ShowControls.CreateDocked(new[] {
             new ControlItem(descBottomPerm, bottomPermKey)
         });
@@ -62,8 +69,8 @@ public class exampleDetailed : MonoBehaviour {
         bottomPerm.showDuration = -1;
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
         if (Input.GetKeyDown(fsBlender.fullscreenClearKey))
         {
             fsUnity.Hide();
@@ -77,6 +84,10 @@ public class exampleDetailed : MonoBehaviour {
         if (!fsBlender.IsShown && !fsUnity.IsShown)
         {
             fsTop.Show();
+            /* if we're pressing the key for the temp ShowControls and
+             * it doesn't already exist, instantiate it.  When it's done,
+             * it'll automatically Destroy itself and we'll be able to
+             * make it again. */
             if (Input.GetKeyDown(bottomTempKey) && bottomTmp == null)
             {
                 bottomTmp = ShowControls.CreateDocked(new[] {
@@ -94,12 +105,4 @@ public class exampleDetailed : MonoBehaviour {
         else
             fsTop.Hide();
 	}
-
-    void OnGUI()
-    {
-        {
-            GUIStyle style = new GUIStyle();
-            style.alignment = TextAnchor.MiddleCenter;
-        }
-    }
 }
