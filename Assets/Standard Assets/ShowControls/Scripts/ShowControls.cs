@@ -772,6 +772,9 @@ public class ShowControls : MonoBehaviour {
 
     private void ShowKey(Rect texRect, KeyCode key)
     {
+        if(key == KeyCode.None) {
+            return;
+        }
         Texture tex = null;
         string label = null;
         if (ControlItem.BigKeys.ContainsKey(key))
