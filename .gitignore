@@ -1,12 +1,3 @@
-obj
-Temp
-*.suo
-*.user
-*.pidb
-*.userprefs
-*.csproj
-*.sln
-*.suo
-Docs
-WebPlayer
-ShowControls.unitypackage
+/*
+!/Assets
+!/ProjectSettings
