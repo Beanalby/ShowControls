@@ -19,8 +19,8 @@ public class exampleDetailed : MonoBehaviour {
     private static string descFs = "Toggle fullscreen for the current view";
     private static string descBottomTemp = "This docked control slides "
         + "(we don't remove slideSpeed), has a long duration (lots of text!), "
-        + "and automatically destroys itself when done - we create it "
-        + " if it's null, and don't explicitly destroy it.";
+        + "and automatically destroys itself when done - we create "
+        + "if it's null, and don't explicitly destroy it.";
     private static string descBottomPerm = "This docked control has "
         + "an infinite duration, and will stay until you hit Ctrl "
         + "to remove it.  It also shows LEFT Ctrl, as opposed to the "
@@ -81,8 +81,9 @@ public class exampleDetailed : MonoBehaviour {
         bottomPerm.position = ShowControlPosition.Bottom;
         bottomPerm.hideLeftRightOnModifierKeys = false;
         bottomPerm.showDuration = -1;
+        bottomPerm.slideSpeed = -1;
     }
-    
+
     void Update () {
         if (Input.GetKeyDown(fsBlender.fullscreenClearKey)) {
             fsUnity.Hide();

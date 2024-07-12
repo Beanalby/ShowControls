@@ -6,13 +6,13 @@ using System.Collections;
 public class exampleBouncyThing : MonoBehaviour {
     public GameObject projector;
 
-    void Update()
-    {
-        projector.transform.position = transform.position + Vector3.up * 1.24f;
-        projector.transform.rotation = Quaternion.LookRotation(-Vector3.up, transform.forward);
+    void Update() {
+        if(projector) {
+            projector.transform.position = transform.position + Vector3.up * 1.24f;
+            projector.transform.rotation = Quaternion.LookRotation(-Vector3.up, transform.forward);
+        }
     }
-    void OnCollisionEnter(Collision col)
-    {
-        rigidbody.velocity = col.contacts[0].normal * 5;
+    void OnCollisionEnter(Collision col) {
+        GetComponent<Rigidbody>().velocity = col.contacts[0].normal * 5;
     }
 }

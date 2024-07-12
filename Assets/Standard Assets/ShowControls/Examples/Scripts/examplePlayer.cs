@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class examplePlayer : MonoBehaviour {
     public GameObject projector;
@@ -21,35 +22,36 @@ public class examplePlayer : MonoBehaviour {
     // so we'll have a way to hide it once they die.
     ShowControls dieDock = null;
 
-    // The "Jump" ShowControls is a true "OneShot".  We create
+    // These "jump" controls show when the player is inside the green
+    // volume.  Normally volumes like this would be invisible,
+    // but we gave it a green material so we can see what's going on.
+    ShowControls jumpControlsFromTrigger = null;
+
+    // The "Jump" ShowControls on pickup is a true "OneShot".  We create
     // it when needed, and it cleans up after itself when its
     // duration is done, so we don't need to keep it around
     // in any variable.
 
-    private string movePopup = "Moves around.  Touch the powerups to get "
-        + "more abilities.";
-    private string moveFull = "Move the player thingy around.  The game "
-        + "pauses while the fullscreen controls are shown, due to its "
-        + "pauseOnDisplay=True\nMore things will be added here "
-        + "as you get them.";
-    private string menuPopup = "View all the controls.  This dock is "
-        + "ShowControlSize.Small";
-    private string jumpPopup = "You acquired the 'Jump'!  This has the default"
-        + "dock behavior, so it disappears automatically after 3 seconds.";
-    private string jumpFull = "Jump.  Includes jumping mid-air.";
-    private string diePopup = "You acquired the 'Die' module!\nNote that "
-        + "this dock has duration=-1, so it will stay until you Die.  "
-        + "Good way to make sure users see & try the new stuff.";
-    private string dieFull = "Die.  Not the most useful ability.";
+    // the text we'll show in various showControls widgets
+    Dictionary<string,string> scText = new Dictionary<string, string>() {
+        {"movePopup",  "Moves around.  Touch the powerups to get more abilities."},
+        {"moveFull",  "Move the player thingy around.  The game pauses while the fullscreen controls are shown, due to its pauseOnDisplay=True\nMore things will be added here as you get them."},
+        {"menuPopup",  "View all the controls.  This dock is ShowControlSize.Small"},
+        {"jumpPopup",  "You acquired the 'Jump'!  This has the default dock behavior, so it disappears automatically after 3 seconds."},
+        {"jumpFullscreen",  "Jump.  Includes jumping mid-air."},
+        {"jumpTrigger",  "Jump up to platform!  This keeps displaying as long as the user is inside the green trigger, ensuring they'll be able to read it at their leisure."},
+        {"diePopup",  "You acquired the 'Die' module!\nNote that this dock has duration=-1, so it will stay until you Die.  Good way to make sure users see & try the new stuff." },
+        {"dieFullscreen",  "Die.  Not the most useful ability."},
+    };
 
+    //various bits for the actual gameplay of the scene
     private bool hasJump = false, hasDie = false, doJump = false;
+    public bool HasJump { get { return hasJump; } }
     private float gravity = 20f;
     private Vector3 velocity = Vector3.zero;
-
     private bool canControl = true;
     private float dieStart = -1;
     Vector3 rotVelocity;
-
     private Vector3 startPoint;
     private CharacterController cc;
 
@@ -60,7 +62,7 @@ public class examplePlayer : MonoBehaviour {
         // Create the fullscreen ShowControls with a control,
         // but don't show it yet.
         fullscreen = ShowControls.CreateFullscreen(
-            new ControlItem(moveFull, CustomDisplay.wasd));
+            new ControlItem((string)scText["moveFull"], CustomDisplay.wasd));
         fullscreen.fullscreenMessageLeft = "Mash ";
         fullscreen.fullscreenClearKey = KeyCode.Tab;
         fullscreen.fullscreenMessageRight = "to keep rockin'";
@@ -69,16 +71,22 @@ public class examplePlayer : MonoBehaviour {
         // the controls screen.  It stays around forever.
         bottomDock = ShowControls.CreateDocked(
             new[] {
-                new ControlItem(movePopup, CustomDisplay.wasd),
-                new ControlItem(menuPopup, KeyCode.Tab)
+                new ControlItem(scText["movePopup"], CustomDisplay.wasd),
+                new ControlItem(scText["menuPopup"], KeyCode.Tab)
             });
         bottomDock.size = ShowControlSize.Small;
         bottomDock.showDuration = -1;
         bottomDock.slideSpeed = -1;
         bottomDock.position = ShowControlPosition.Bottom;
         bottomDock.Show();
+
+        // intiailize jumpControlsFromTrigger now, although
+        // we only show it when the player's inside the trigger
+        jumpControlsFromTrigger = ShowControls.CreateDocked(new ControlItem(scText["jumpTrigger"], KeyCode.Space));
+        jumpControlsFromTrigger.offsetX = Screen.width / 2;
+        jumpControlsFromTrigger.showDuration = -1;
     }
-    
+
     void Update () {
         if (Input.GetKeyDown(KeyCode.Tab)) {
             // if we're showing the fullscreen, don't show the bottom dock,
@@ -86,11 +94,13 @@ public class examplePlayer : MonoBehaviour {
             bottomDock.Toggle();
             fullscreen.Toggle();
         }
-        projector.transform.position = transform.position + Vector3.up * 1.24f;
-        projector.transform.rotation = Quaternion.LookRotation(-Vector3.up,
-            transform.forward);
+        if(projector) {
+            projector.transform.position = transform.position + Vector3.up * 1.24f;
+            projector.transform.rotation = Quaternion.LookRotation(-Vector3.up,
+                transform.forward);
+        }
 
-        if(!canControl) {
+        if (!canControl) {
             return;
         }
         if (hasJump && Input.GetButtonDown("Jump"))
@@ -119,7 +129,7 @@ public class examplePlayer : MonoBehaviour {
             velocity.z = Input.GetAxis("Vertical") * 5;
         }
         if (doJump) {
-            velocity.y += 10;
+            velocity.y = 10;
             doJump = false;
         }
 
@@ -143,38 +153,48 @@ public class examplePlayer : MonoBehaviour {
         switch (powerup) {
             case "Jump":
                 hasJump = true;
-                fullscreen.controls.Add(
-                    new ControlItem(jumpFull, KeyCode.Space));
                 // create the "jump" dock.  We don't need to keep track of the
                 // ShowControls it returns, as it will take care of itself
                 // when the duration runs out.  Create it, & immediately
                 // show it.
                 ShowControls.CreateDocked(
-                    new ControlItem(jumpPopup, KeyCode.Space)).Show();
+                    new ControlItem(scText["jumpPopup"], KeyCode.Space)).Show();
+                // also add the "Jump" ability to the fullscreen controls
+                fullscreen.controls.Add(
+                    new ControlItem(scText["jumpFullscreen"], KeyCode.Space));
                 break;
             case "Die":
                 hasDie = true;
-                fullscreen.controls.Add(
-                    new ControlItem(dieFull, MouseButton.LeftClick));
-                // Create the "die" dock.  We don't show it immediately
-                // because we want to adjust the duration before showing.
+                // Create the "die" dock.  Unlike "jump" above, it has an infinite
+                // duration, because it lasts until the player uses it
                 dieDock = ShowControls.CreateDocked(
-                    new ControlItem(diePopup, MouseButton.LeftClick));
+                    new ControlItem(scText["diePopup"], KeyCode.LeftControl));
                 dieDock.showDuration = -1;
                 dieDock.Show();
+                // also add the "Die" ability to the fullscreen controls
+                fullscreen.controls.Add(
+                    new ControlItem(scText["dieFullscreen"], KeyCode.LeftControl));
                 break;
         }
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit) {
-        if(hit.gameObject.layer == 9 && hit.normal == Vector3.up) {
-            velocity.y = 0;
-        }  else {
-            examplePowerup p = hit.gameObject.GetComponent<examplePowerup>();
-            if(p != null) {
-                AddPowerup(p.powerupName);
-                Destroy(hit.gameObject);
-            }
+        if(hit.gameObject.layer == 9) { return; } // floor
+        examplePowerup p = hit.gameObject.GetComponent<examplePowerup>();
+        if(p != null) {
+            AddPowerup(p.powerupName);
+            Destroy(hit.gameObject);
         }
+    }
+
+
+    // show/hide jumpControlsFromTrigger when they're in the green volume
+    void OnTriggerEnter(Collider other) {
+        if(hasJump) {
+            jumpControlsFromTrigger.Show();
+        }
+    }
+    void OnTriggerExit(Collider other) {
+        jumpControlsFromTrigger.Hide();
     }
 }
